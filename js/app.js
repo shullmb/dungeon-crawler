@@ -33,6 +33,7 @@ class Crawler {
         this.alive = true;
     }
 
+    // ctx argument to choose context to render to
     render(ctx) {
         let spriteImg = new Image();
         spriteImg.src = this.src;
@@ -50,7 +51,6 @@ const detectEncounter = () => {
         // trigger encounter screen as soon as i know how
         ctx.save();
         dungeonLoopRunning = false;
-        startBattle();
     }
 }
 
@@ -111,23 +111,35 @@ const drawBattleScreen = () => {
 }
 
 const drawParticipants = (crawler) => {
-    let spriteImg = new Image();
-    spriteImg.src = mage.src;
+    // create image objects and assign src -- create Crawler method to return these
+    let playerImg = new Image();
+    playerImg.src = mage.src;
+    let crawlerImg = new Image();
+    crawlerImg.src = crawler.src;
 
-    ctx2.drawImage(spriteImg, 50,50, 64, 64)
+    // render on battle screen
+    ctx2.drawImage(playerImg, 50,50, 64, 64);
+    ctx2.drawImage(crawlerImg, battle.width - 50 - 64, 50, 64, 64);
 }
 
 
 // function to receive player input
-const chooseAction = () => {
+const chooseAction = (crawler) => {
     // logic goes here
+
+    // kill opponent in development
+    document.addEventListener('keydown', function(e) {
+        if (e.keyCode === 13 ) {
+            crawler.alive = false;
+        }
+    })
 }
 
-const startBattle = () => {
+const startBattle = (crawler) => {
     drawBattleScreen();
-    drawParticipants();
-    
-    mush.alive = false;
+    drawParticipants(crawler);
+    chooseAction(crawler);
+
 }
 
 document.addEventListener("DOMContentLoaded", function() {
@@ -139,7 +151,9 @@ document.addEventListener("DOMContentLoaded", function() {
     // set up event listener for movement keypress
     document.addEventListener('keydown', movementInputHandler);
     document.addEventListener('keydown', function(e){
-        if (e.keyCode === 49) {restart();}
+        if (e.keyCode === 49) {
+            restart();
+        }
     });
     
     // start game loop
@@ -147,7 +161,7 @@ document.addEventListener("DOMContentLoaded", function() {
         if (dungeonLoopRunning == true) {
             dungeonLoop();
         } else {
-            startBattle();
+            startBattle(mush);
         }
     }, 60);
     
