@@ -23,7 +23,7 @@ class Crawler {
 }
 
 const gameLoop = () => {
-    ctx.clearRect();
+    ctx.clearRect(0,0,game.width,game.height);
     mage.render();
     mush.render();
 }
@@ -33,12 +33,11 @@ document.addEventListener("DOMContentLoaded", function() {
     console.log('craaaawwwwwwl');
 
     mage = new Crawler(10, 10,'../img/plc-mage-32.png');
-    mush = new Crawler(200,50,'../img/plc-mush-32.png');
+    mush = new Crawler(200, 50,'../img/wandering_mushroom_new.png');
 
-    mush.render();
+    // mush.render();
 
-    
-
+    setInterval(gameLoop, 60);
 
 
 
