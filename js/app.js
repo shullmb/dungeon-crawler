@@ -1,15 +1,23 @@
 // game setup
 const game = document.getElementById('game');
+const battle = document.getElementById('battle');
 const ctx = game.getContext('2d');
+const ctx2 = battle.getContext('2d');
+const canvasWidth = '832';
+const canvasHeight = '416';
+
+game.width = canvasWidth;
+game.height = canvasHeight;
+battle.width = canvasWidth;
+battle.height = canvasHeight;
+
 var loopHandle;
 var dungeonLoopRunning = true;
-game.width = "832";
-game.height = "416";
 
 // DOM hooks
 const topRight = document.getElementById('top-right');
 
-//globals
+// declare crawlers
 var mage;
 var mush;
 
@@ -46,25 +54,24 @@ const detectEncounter = () => {
     }
 }
 
-const keyInputHandler = (e) => {
+const movementInputHandler = (e) => {
     // console.log(e.keyCode);
-    switch(true) {
-        case (e.keyCode === 87 || e.keyCode === 38):
-            mage.y -= 10;
-            break;
-        case (e.keyCode === 83 || e.keyCode === 40):
-            mage.y += 10;
-            break;
-        case (e.keyCode === 65 || e.keyCode === 37):
-            mage.x -= 10;
-            break;
-        case (e.keyCode === 68 || e.keyCode === 39):
-            mage.x += 10;
-            break;
-        // restart loop test
-        case (e.keyCode === 49):
-            restart();
-            break;
+    // disallow movement when battle screen is active
+    if (dungeonLoopRunning) {
+        switch(true) {
+            case (e.keyCode === 87 || e.keyCode === 38):
+                mage.y -= 10;
+                break;
+            case (e.keyCode === 83 || e.keyCode === 40):
+                mage.y += 10;
+                break;
+            case (e.keyCode === 65 || e.keyCode === 37):
+                mage.x -= 10;
+                break;
+            case (e.keyCode === 68 || e.keyCode === 39):
+                mage.x += 10;
+                break;
+        }
     }
 }
 
@@ -88,16 +95,21 @@ const dungeonLoop = () => {
 
 // utility function to test game state on restart
 const restart = () => {
+    ctx2.clearRect(0,0,battle.width,battle.height);
     ctx.restore();
     dungeonLoopRunning = true;
 }
 
+// draw battle screen
+const drawBattleScreen = () => {
+    ctx2.clearRect(0,0,battle.width,battle.height);
+    ctx2.fillStyle = 'rgba(66,66,66,0.7)';
+    ctx2.strokeRect(10,10,812,396);
+    ctx2.fillRect(10,10,812,396);
+}
+
 const battleScreen = () => {
-    console.log('battle screen fired');
-    ctx.clearRect(0,0,game.width,game.height);
-    ctx.fillStyle = 'rgba(44,44,44,0.7)';
-    ctx.strokeRect(10,10,812,396);
-    ctx.fillRect(10,10,812,396);
+    drawBattleScreen();
 }
 
 document.addEventListener("DOMContentLoaded", function() {
@@ -106,8 +118,11 @@ document.addEventListener("DOMContentLoaded", function() {
     mage = new Crawler(10, 10,'../img/plc-mage-32.png');
     mush = new Crawler(200, 50,'../img/wandering_mushroom_new.png');
 
-    // set up event listener for keyepress
-    document.addEventListener('keydown', keyInputHandler);
+    // set up event listener for movement keypress
+    document.addEventListener('keydown', movementInputHandler);
+    document.addEventListener('keydown', function(e){
+        if (e.keyCode === 49) {restart();}
+    });
     
     // start game loop
     loopHandle = setInterval( function() {

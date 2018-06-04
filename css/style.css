@@ -50,6 +50,7 @@ h3 {
 
 main {
     grid-area: game;
+    position: relative;
 }
 
 #btm-left {
@@ -60,8 +61,17 @@ main {
     grid-area: btm-right;
 }
 
-canvas {
+canvas#game {
     background: #2c2c2c;
     background-image: url('../img/rect_gray_0_old.png');
     background-repeat: repeat;
+    position: absolute;
+    top:0;
+    left: 0;
+}
+
+canvas#battle {
+    position: absolute;
+    top: 0;
+    left: 0;
 }
