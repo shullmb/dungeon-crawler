@@ -2,12 +2,9 @@ const game = document.getElementById('game');
 const ctx = game.getContext('2d');
 game.width = "832";
 game.height = "416";
-var img;
+
 var mage;
 var mush;
-
-img = new Image();
-img.src = '../img/plc-mage-32.png'
 
 class Crawler {
     constructor(x,y,src) {
@@ -19,15 +16,28 @@ class Crawler {
     }
 
     render() {
-        ctx.drawImage(this.src,this.x,this.y,this.width,this.height);
+        let spriteImg = new Image();
+        spriteImg.src = this.src;
+        ctx.drawImage(spriteImg,this.x,this.y,this.width,this.height);
     }
+}
+
+const gameLoop = () => {
+    ctx.clearRect();
+    mage.render();
+    mush.render();
 }
 
 
 document.addEventListener("DOMContentLoaded", function() {
     console.log('craaaawwwwwwl');
 
-    ctx.drawImage(img, 10,10, 32,32);
+    mage = new Crawler(10, 10,'../img/plc-mage-32.png');
+    mush = new Crawler(200,50,'../img/plc-mush-32.png');
+
+    mush.render();
+
+    
 
 
 
