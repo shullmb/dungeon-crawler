@@ -1,0 +1,24 @@
+{
+  "name": "dungeon-crawler",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "browser-sync --server --start"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/shullmb/dungeon-crawler.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/shullmb/dungeon-crawler/issues"
+  },
+  "homepage": "https://github.com/shullmb/dungeon-crawler#readme",
+  "dependencies": {
+    "browser-sync": "^2.24.4"
+  }
+}
