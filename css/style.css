@@ -24,8 +24,11 @@
 
  }
 
-#top-left, #top-right, main, #btm-left, #btm-right {
-    background: #fff;
+#top-left, #top-right, #btm-left, #btm-right {
+    background: #2c2c2c;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 #top-left {
@@ -46,4 +49,12 @@ main {
 
 #btm-right {
     grid-area: btm-right;
+}
+
+canvas {
+    background: #2c2c2c;
+    background-image: url('../img/rect_gray_0_old.png');
+    background-repeat: repeat;
+    width: 52em;
+    height: 26em;
 }
