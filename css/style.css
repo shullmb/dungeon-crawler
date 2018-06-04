@@ -2,6 +2,8 @@
 
  body {
      background-color: #000;
+     background-image: url('../img/background.png');
+     background-size: cover;
      font-family: 'Press Start 2P', 'Courier New', Courier, monospace;
  }
 
@@ -68,10 +70,12 @@ canvas#game {
     position: absolute;
     top:0;
     left: 0;
+    z-index: 0;
 }
 
 canvas#battle {
     position: absolute;
     top: 0;
     left: 0;
+    z-index: 10;
 }

@@ -27,12 +27,13 @@ class Crawler {
         this.x = x;
         this.y = y;
         this.src = src;
+        // add larger image properties for battle screen
         this.width = 32;
         this.height = 32;
         this.alive = true;
     }
 
-    render() {
+    render(ctx) {
         let spriteImg = new Image();
         spriteImg.src = this.src;
         ctx.drawImage(spriteImg,this.x,this.y,this.width,this.height);
@@ -47,10 +48,9 @@ const detectEncounter = () => {
         && mage.y + mage.height > mush.y) {
         console.log('Prepare for BATTTLE!')
         // trigger encounter screen as soon as i know how
-        mush.alive = false; 
         ctx.save();
         dungeonLoopRunning = false;
-        battleScreen();
+        startBattle();
     }
 }
 
@@ -79,17 +79,19 @@ const movementInputHandler = (e) => {
 const dungeonLoop = () => { 
     detectEncounter();
     ctx.clearRect(0,0,game.width,game.height);
-    mage.render();
+    mage.render(ctx);
     // track position during development/debug -- using innerHTML temporarily
     topRight.innerHTML = "<h3>x:" + mage.x + "<br>y:" + mage.y + "</h3>";
 
     // draw mush if still alive
     if (mush.alive) {
-        mush.render() 
+        mush.render(ctx) 
     } else {
         // I feel like there has to be a better way to do this
         mush.x = null;
         mush.y = null;
+        mush.width = 0;
+        mush.height = 0;
     }
 }
 
@@ -100,7 +102,7 @@ const restart = () => {
     dungeonLoopRunning = true;
 }
 
-// draw battle screen
+// draw battle screen stage
 const drawBattleScreen = () => {
     ctx2.clearRect(0,0,battle.width,battle.height);
     ctx2.fillStyle = 'rgba(66,66,66,0.7)';
@@ -108,8 +110,24 @@ const drawBattleScreen = () => {
     ctx2.fillRect(10,10,812,396);
 }
 
-const battleScreen = () => {
+const drawParticipants = (crawler) => {
+    let spriteImg = new Image();
+    spriteImg.src = mage.src;
+
+    ctx2.drawImage(spriteImg, 50,50, 64, 64)
+}
+
+
+// function to receive player input
+const chooseAction = () => {
+    // logic goes here
+}
+
+const startBattle = () => {
     drawBattleScreen();
+    drawParticipants();
+    
+    mush.alive = false;
 }
 
 document.addEventListener("DOMContentLoaded", function() {
@@ -129,7 +147,7 @@ document.addEventListener("DOMContentLoaded", function() {
         if (dungeonLoopRunning == true) {
             dungeonLoop();
         } else {
-            battleScreen();
+            startBattle();
         }
     }, 60);
     
