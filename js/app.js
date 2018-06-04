@@ -35,10 +35,24 @@ document.addEventListener("DOMContentLoaded", function() {
     mage = new Crawler(10, 10,'../img/plc-mage-32.png');
     mush = new Crawler(200, 50,'../img/wandering_mushroom_new.png');
 
-    // mush.render();
-
     setInterval(gameLoop, 60);
 
+    document.addEventListener('keydown', function(e){
+        switch(true) {
+            case (e.keyCode === 38):
+                mage.y -= 5;
+                break;
+            case (e.keyCode === 40):
+                mage.y += 5;
+                break;
+            case (e.keyCode === 37):
+                mage.x -= 5;
+                break;
+            case (e.keyCode === 39):
+                mage.x += 5;
+                break;
+        }
+    })
 
 
 
