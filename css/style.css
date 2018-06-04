@@ -4,6 +4,10 @@
      background-color: #000;
  }
 
+ #img-preload {
+     display: none;
+ }
+
  #container {
      background-color: crimson;
      padding: 1em;
@@ -15,8 +19,8 @@
      grid-template-rows: .15fr .7fr .15fr;
      grid-template-columns: .15fr .7fr .15fr;
      grid-template-areas: "top-left top-left top-right"
-                "game game game"
-                "btm-left btm-right btm-right";
+                          "game game game"
+                          "btm-left btm-right btm-right";
 
  }
 
