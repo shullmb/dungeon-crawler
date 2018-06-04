@@ -2,7 +2,12 @@
 
  body {
      background-color: #000;
+     font-family: 'Press Start 2P', 'Courier New', Courier, monospace;
  }
+
+h1 {
+    color: #daa520;
+}
 
  #img-preload {
      display: none;
@@ -17,7 +22,7 @@
      display: grid;
      grid-gap: 1em;
      grid-template-rows: .15fr .7fr .15fr;
-     grid-template-columns: .15fr .7fr .15fr;
+     grid-template-columns: .25fr .5fr .25fr;
      grid-template-areas: "top-left top-left top-right"
                           "game game game"
                           "btm-left btm-right btm-right";
