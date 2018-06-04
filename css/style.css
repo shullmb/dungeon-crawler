@@ -9,6 +9,10 @@ h1 {
     color: #daa520;
 }
 
+h3 {
+    color: #FFF;
+}
+
  #img-preload {
      display: none;
  }
@@ -60,6 +64,4 @@ canvas {
     background: #2c2c2c;
     background-image: url('../img/rect_gray_0_old.png');
     background-repeat: repeat;
-    width: 52em;
-    height: 26em;
 }
