@@ -74,9 +74,12 @@ const dungeonLoop = () => {
     mage.render();
     // track position during development/debug -- using innerHTML temporarily
     topRight.innerHTML = "<h3>x:" + mage.x + " y:" + mage.y + "</h3>";
-
     if (mush.alive) {
         mush.render() 
+    } else {
+        // I feel like there has to be a better way to do this
+        mush.x = null;
+        mush.y = null;
     }
 }
 
