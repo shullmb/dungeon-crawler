@@ -1,0 +1,45 @@
+ /* DUNGEON CRAWLER STYLEZZZ */
+
+ body {
+     background-color: #000;
+ }
+
+ #container {
+     background-color: crimson;
+     padding: 1em;
+     width: 52em;
+     height: 80vh;
+     margin: 1em auto;
+     display: grid;
+     grid-gap: 1em;
+     grid-template-rows: .15fr .7fr .15fr;
+     grid-template-columns: .15fr .7fr .15fr;
+     grid-template-areas: "top-left top-left top-right"
+                "game game game"
+                "btm-left btm-right btm-right";
+
+ }
+
+#top-left, #top-right, main, #btm-left, #btm-right {
+    background: #fff;
+}
+
+#top-left {
+    grid-area: top-left;
+}
+
+#top-right {
+    grid-area: top-right;
+}
+
+main {
+    grid-area: game;
+}
+
+#btm-left {
+    grid-area: btm-left;
+}
+
+#btm-right {
+    grid-area: btm-right;
+}
