@@ -42,6 +42,7 @@ const detectEncounter = () => {
         mush.alive = false; 
         ctx.save();
         dungeonLoopRunning = false;
+        battleScreen();
     }
 }
 
@@ -73,7 +74,9 @@ const dungeonLoop = () => {
     ctx.clearRect(0,0,game.width,game.height);
     mage.render();
     // track position during development/debug -- using innerHTML temporarily
-    topRight.innerHTML = "<h3>x:" + mage.x + " y:" + mage.y + "</h3>";
+    topRight.innerHTML = "<h3>x:" + mage.x + "<br>y:" + mage.y + "</h3>";
+
+    // draw mush if still alive
     if (mush.alive) {
         mush.render() 
     } else {
@@ -89,6 +92,13 @@ const restart = () => {
     dungeonLoopRunning = true;
 }
 
+const battleScreen = () => {
+    console.log('battle screen fired');
+    ctx.clearRect(0,0,game.width,game.height);
+    ctx.fillStyle = 'rgba(44,44,44,0.7)';
+    ctx.strokeRect(10,10,812,396);
+    ctx.fillRect(10,10,812,396);
+}
 
 document.addEventListener("DOMContentLoaded", function() {
 
@@ -103,7 +113,9 @@ document.addEventListener("DOMContentLoaded", function() {
     loopHandle = setInterval( function() {
         if (dungeonLoopRunning == true) {
             dungeonLoop();
-        } 
+        } else {
+            battleScreen();
+        }
     }, 60);
     
 
