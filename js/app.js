@@ -77,12 +77,11 @@ const movementInputHandler = (e) => {
 
 // function for dungeoneering loop
 const dungeonLoop = () => { 
-    detectEncounter();
     ctx.clearRect(0,0,game.width,game.height);
     mage.render(ctx);
     // track position during development/debug -- using innerHTML temporarily
     topRight.innerHTML = "<h3>x:" + mage.x + "<br>y:" + mage.y + "</h3>";
-
+    
     // draw mush if still alive
     if (mush.alive) {
         mush.render(ctx) 
@@ -93,6 +92,7 @@ const dungeonLoop = () => {
         mush.width = 0;
         mush.height = 0;
     }
+    detectEncounter();
 }
 
 // utility function to test game state on restart
