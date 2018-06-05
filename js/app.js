@@ -1,5 +1,3 @@
-// import * as Crawler from 'crawler.js'; // why doesn't this work??
-
 // game setup
 const game = document.getElementById('game');
 const battle = document.getElementById('battle');
@@ -23,6 +21,13 @@ const topRight = document.getElementById('top-right');
 var mage;
 var mush;
 
+// helper functions
+
+// roll die
+const roll = (numSides) => {
+    return Math.floor(Math.random() * numSides);
+}
+
 // create Crawler object to populate dungeon
 class Crawler {
     constructor(x,y,src) {
@@ -32,7 +37,8 @@ class Crawler {
         // add larger image properties for battle screen
         this.width = 32;
         this.height = 32;
-        this.alive = true;
+        this.level = 1;
+        this.hp = 8;
     }
 
     // ctx argument to choose context to render to
@@ -41,6 +47,19 @@ class Crawler {
         spriteImg.src = this.src;
         ctx.drawImage(spriteImg,this.x,this.y,this.width,this.height);
     }
+
+    // attack roll
+    rollAttack(numDice, numSides) {
+        return numDice * roll(numSides);
+    }
+
+    // level up
+    levelUp(){
+        this.level += 1
+        this.hp = this.level + (this.level * roll(8));
+    }
+
+
 }
 
 // function to detect contact with monster -- hard coding in mushroom placeholder for development
@@ -56,6 +75,7 @@ const detectEncounter = () => {
     }
 }
 
+// function for keypress in dungeon roaming mode
 const movementInputHandler = (e) => {
     // console.log(e.keyCode);
     // disallow movement when battle screen is active
@@ -85,7 +105,7 @@ const dungeonLoop = () => {
     topRight.innerHTML = "<h3>x:" + mage.x + "<br>y:" + mage.y + "</h3>";
     
     // draw mush if still alive
-    if (mush.alive) {
+    if (mush.hp > 0) {
         mush.render(ctx) 
     } else {
         // I feel like there has to be a better way to do this
@@ -127,7 +147,7 @@ const drawParticipants = (crawler) => {
 
 function drawBattleHeader(ctx, text, x, y, color) {
     ctx.fillStyle = color;
-    ctx.font = "30px 'Press Start 2P'";
+    ctx.font = "26px 'Press Start 2P'";
     ctx.fillText(text, x, y);
 }
 
@@ -139,14 +159,14 @@ const chooseAction = (crawler) => {
     // kill opponent in development
     document.addEventListener('keydown', function(e) {
         if (e.keyCode === 13 ) {
-            crawler.alive = false;
+            crawler.hp = 0;
         }
     })
 }
 
 const startBattle = (crawler) => {
     drawBattleScreen();
-    drawBattleHeader(ctx2, 'ROLL FOR INITIATIVE',130,50, '#000');
+    drawBattleHeader(ctx2, 'ROLL FOR INITIATIVE',165,50, '#000');
     drawParticipants(crawler);
     chooseAction(crawler);
 
