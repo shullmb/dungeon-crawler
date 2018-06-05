@@ -1,21 +1,22 @@
 // game setup
 const game = document.getElementById('game');
-const battle = document.getElementById('battle');
+const battleScreen = document.getElementById('battle-screen');
 const ctx = game.getContext('2d');
-const ctx2 = battle.getContext('2d');
+const ctx2 = battleScreen.getContext('2d');
 const canvasWidth = '832';
 const canvasHeight = '416';
 
 game.width = canvasWidth;
 game.height = canvasHeight;
-battle.width = canvasWidth;
-battle.height = canvasHeight;
+battleScreen.width = canvasWidth;
+battleScreen.height = canvasHeight;
 
 var loopHandle;
 var dungeonLoopRunning = true;
 
 // DOM hooks
 const topRight = document.getElementById('top-right');
+const btmRight = document.getElementById('btm-right');
 
 // declare crawlers
 var mage;
@@ -38,7 +39,8 @@ class Crawler {
         this.width = 32;
         this.height = 32;
         this.level = 1;
-        this.hp = 8;
+        // randomize starting hp a little
+        this.hp = 8 + Math.round(Math.random() * 3);
     }
 
     // ctx argument to choose context to render to
@@ -56,7 +58,7 @@ class Crawler {
     // level up
     levelUp(){
         this.level += 1
-        this.hp = this.level + (this.level * roll(8));
+        this.hp += this.level * roll(8) + 4;
     }
 
 
@@ -101,9 +103,8 @@ const movementInputHandler = (e) => {
 const dungeonLoop = () => { 
     ctx.clearRect(0,0,game.width,game.height);
     mage.render(ctx);
-    // track position during development/debug -- using innerHTML temporarily
+    // track info during development/debug -- using innerHTML temporarily
     topRight.innerHTML = "<h3>x:" + mage.x + "<br>y:" + mage.y + "</h3>";
-    
     // draw mush if still alive
     if (mush.hp > 0) {
         mush.render(ctx) 
@@ -155,11 +156,13 @@ function drawBattleHeader(ctx, text, x, y, color) {
 // function to receive player input
 const chooseAction = (crawler) => {
     // logic goes here
-
-    // kill opponent in development
-    document.addEventListener('keydown', function(e) {
+    btmRight.innerHTML = "<h3>p: " + mage.hp + "  m: " + mush.hp + "</h3>";
+    // kill opponent in development -- this fires repeatedly
+    document.addEventListener('keypress', function(e) {
         if (e.keyCode === 13 ) {
-            crawler.hp = 0;
+            let atk = mage.rollAttack(mage.level, 8);
+            console.log(atk);
+            return crawler.hp -= atk;
         }
     })
 }
@@ -168,8 +171,14 @@ const startBattle = (crawler) => {
     drawBattleScreen();
     drawBattleHeader(ctx2, 'ROLL FOR INITIATIVE',165,50, '#000');
     drawParticipants(crawler);
-    chooseAction(crawler);
+    battle(crawler);
+}
 
+const battle = (crawler) => {
+    chooseAction(crawler);
+    if (mush.hp <= 0) {
+        restart();
+    }
 }
 
 document.addEventListener("DOMContentLoaded", function() {
