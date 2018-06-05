@@ -13,6 +13,7 @@ battleScreen.height = canvasHeight;
 
 var loopHandle;
 var dungeonLoopRunning = true;
+var battleLoopRunning = false;
 
 // DOM hooks
 const topRight = document.getElementById('top-right');
@@ -99,6 +100,24 @@ const movementInputHandler = (e) => {
     }
 }
 
+// function for keypress in battle mode
+const battleInputHandler = (e) => {
+    if (battleLoopRunning) {
+        switch(e.keyCode) {
+            case 49:
+                console.log('keypressed')
+                break;
+            case 50:
+                console.log('keypressed')
+                break;
+            case 51:
+                console.log('keypressed')
+                break;
+
+        }
+    }
+}
+
 // function for dungeoneering loop
 const dungeonLoop = () => { 
     ctx.clearRect(0,0,game.width,game.height);
@@ -122,6 +141,7 @@ const dungeonLoop = () => {
 const restart = () => {
     ctx2.clearRect(0,0,battle.width,battle.height);
     ctx.restore();
+    battleLoopRunning = false;
     dungeonLoopRunning = true;
 }
 
@@ -156,7 +176,6 @@ function drawBattleHeader(ctx, text, x, y, color) {
 // function to receive player input
 const chooseAction = (crawler) => {
     // logic goes here
-    btmRight.innerHTML = "<h3>p: " + mage.hp + "  m: " + mush.hp + "</h3>";
     // kill opponent in development -- this fires repeatedly
     document.addEventListener('keypress', function(e) {
         if (e.keyCode === 13 ) {
@@ -168,6 +187,7 @@ const chooseAction = (crawler) => {
 }
 
 const startBattle = (crawler) => {
+    battleLoopRunning = true;
     drawBattleScreen();
     drawBattleHeader(ctx2, 'ROLL FOR INITIATIVE',165,50, '#000');
     drawParticipants(crawler);
@@ -175,6 +195,8 @@ const startBattle = (crawler) => {
 }
 
 const battle = (crawler) => {
+    btmRight.innerHTML = "<h3>p: " + mage.hp + "  m: " + mush.hp + "</h3>";
+
     chooseAction(crawler);
     if (mush.hp <= 0) {
         restart();
@@ -189,11 +211,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
     // set up event listener for movement keypress
     document.addEventListener('keydown', movementInputHandler);
-    document.addEventListener('keydown', function(e){
-        if (e.keyCode === 49) {
-            restart();
-        }
-    });
+    document.addEventListener('keydown', battleInputHandler);
     
     // start game loop
     loopHandle = setInterval( function() {
