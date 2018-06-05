@@ -1,3 +1,5 @@
+// import * as Crawler from 'crawler.js'; // why doesn't this work??
+
 // game setup
 const game = document.getElementById('game');
 const battle = document.getElementById('battle');
@@ -123,9 +125,8 @@ const drawParticipants = (crawler) => {
     ctx2.drawImage(crawlerImg, battle.width - 50 - 64, 50, 64, 64);
 }
 
-function drawBattleHeader(ctx, text, x, y) {
-    ctx.fillStyle = '#000';
-    ctx.fill();
+function drawBattleHeader(ctx, text, x, y, color) {
+    ctx.fillStyle = color;
     ctx.font = "30px 'Press Start 2P'";
     ctx.fillText(text, x, y);
 }
@@ -145,8 +146,8 @@ const chooseAction = (crawler) => {
 
 const startBattle = (crawler) => {
     drawBattleScreen();
+    drawBattleHeader(ctx2, 'ROLL FOR INITIATIVE',130,50, '#000');
     drawParticipants(crawler);
-    drawBattleHeader(ctx2, 'Roll for initiative',130,50)
     chooseAction(crawler);
 
 }
