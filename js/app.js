@@ -105,9 +105,10 @@ const restart = () => {
 // draw battle screen stage
 const drawBattleScreen = () => {
     ctx2.clearRect(0,0,battle.width,battle.height);
-    ctx2.fillStyle = 'rgba(66,66,66,0.7)';
+    ctx2.fillStyle = 'rgba(66,66,66,0.8)';
     ctx2.strokeRect(10,10,812,396);
     ctx2.fillRect(10,10,812,396);
+    
 }
 
 const drawParticipants = (crawler) => {
@@ -120,6 +121,13 @@ const drawParticipants = (crawler) => {
     // render on battle screen
     ctx2.drawImage(playerImg, 50,50, 64, 64);
     ctx2.drawImage(crawlerImg, battle.width - 50 - 64, 50, 64, 64);
+}
+
+function drawBattleHeader(ctx, text, x, y) {
+    ctx.fillStyle = '#000';
+    ctx.fill();
+    ctx.font = "30px 'Press Start 2P'";
+    ctx.fillText(text, x, y);
 }
 
 
@@ -138,6 +146,7 @@ const chooseAction = (crawler) => {
 const startBattle = (crawler) => {
     drawBattleScreen();
     drawParticipants(crawler);
+    drawBattleHeader(ctx2, 'Roll for initiative',130,50)
     chooseAction(crawler);
 
 }
