@@ -6,6 +6,8 @@ const ctx2 = battleScreen.getContext('2d');
 const canvasWidth = '832';
 const canvasHeight = '416';
 
+var isItRunning = 0
+
 game.width = canvasWidth;
 game.height = canvasHeight;
 battleScreen.width = canvasWidth;
@@ -14,6 +16,7 @@ battleScreen.height = canvasHeight;
 var loopHandle;
 var dungeonLoopRunning = true;
 var battleLoopRunning = false;
+var turn = 1;
 
 // DOM hooks
 const topRight = document.getElementById('top-right');
@@ -33,6 +36,8 @@ const setLoopInterval = function() {
         } else {
             clearInterval(loopHandle);
             startBattle(mush);
+            // console.log(isItRunning);
+            // isItRunning++;
         }
     }, 60);
 }
@@ -41,22 +46,52 @@ const setLoopInterval = function() {
 const roll = (numSides) => {
     return Math.ceil(Math.random() * (numSides));
 }
+
+// draw battle screen stage
+const drawBattleScreen = () => {
+    ctx2.clearRect(0, 0, battleScreen.width, battleScreen.height);
+    ctx2.fillStyle = 'rgba(66,66,66,0.8)';
+    ctx2.strokeRect(10, 10, 812, 396);
+    ctx2.fillRect(10, 10, 812, 396);
+
+}
+
+// draw participants on battle screen
+const drawParticipants = (crawler) => {
+    // create image objects and assign src -- create Crawler method to return these
+    let playerImg = new Image();
+    playerImg.src = mage.src;
+    let crawlerImg = new Image();
+    crawlerImg.src = crawler.src;
+
+    // render on battle screen
+    ctx2.drawImage(playerImg, 50, 50, 64, 64);
+    ctx2.drawImage(crawlerImg, battleScreen.width - 50 - 64, 50, 64, 64);
+}
+
+//draw message on header of battle screen
+function drawBattleHeader(ctx, text, x, y, color) {
+    ctx.fillStyle = color;
+    ctx.font = "26px 'Press Start 2P'";
+    ctx.fillText(text, x, y);
+}
+
 // function for keypress in battle mode
 const battleInputHandler = (e) => {
-    if (battleLoopRunning) {
-        switch(e.keyCode) {
-            case 49:
-                console.log('keypressed')
-                break;
-            case 50:
-                console.log('keypressed')
-                break;
-            case 51:
-                console.log('keypressed')
-                break;
+//     if (battleLoopRunning) {
+//         switch(e.keyCode) {
+//             case 49:
+//                 return 
+//                 break;
+//             case 50:
+                
+//                 break;
+//             case 51:
+                
+//                 break;
 
-        }
-    }
+//         }
+//     }
 }
 
 // function for keypress in dungeon roaming mode
@@ -118,20 +153,6 @@ class Crawler {
 
 }
 
-// function to detect contact with monster -- hard coding in mushroom placeholder for development
-const detectEncounter = () => {
-    if (mage.x < mush.x + mush.width
-        && mage.x + mage.width > mush.x
-        && mage.y < mush.y + mush.height
-        && mage.y + mage.height > mush.y) {
-        console.log('Prepare for BATTTLE!')
-        // trigger encounter screen as soon as i know how
-        ctx.save();
-        dungeonLoopRunning = false;
-        battleLoopRunning = true;
-    }
-}
-
 // function for dungeoneering loop
 const dungeonLoop = () => { 
     ctx.clearRect(0,0,game.width,game.height);
@@ -151,6 +172,20 @@ const dungeonLoop = () => {
     detectEncounter();
 }
 
+// function to detect contact with monster -- hard coding in mushroom placeholder for development
+const detectEncounter = () => {
+    if (mage.x < mush.x + mush.width
+        && mage.x + mage.width > mush.x
+        && mage.y < mush.y + mush.height
+        && mage.y + mage.height > mush.y) {
+        console.log('Prepare for BATTTLE!')
+        // trigger encounter screen as soon as i know how
+        ctx.save();
+        dungeonLoopRunning = false;
+        battleLoopRunning = true;
+    }
+}
+
 // utility function to test game state on restart
 const restart = () => {
     ctx2.clearRect(0,0,battleScreen.width,battleScreen.height);
@@ -160,74 +195,50 @@ const restart = () => {
     loopHandle = setLoopInterval();
 }
 
-// draw battle screen stage
-const drawBattleScreen = () => {
-    ctx2.clearRect(0,0,battleScreen.width,battleScreen.height);
-    ctx2.fillStyle = 'rgba(66,66,66,0.8)';
-    ctx2.strokeRect(10,10,812,396);
-    ctx2.fillRect(10,10,812,396);
-    
-}
-
-const drawParticipants = (crawler) => {
-    // create image objects and assign src -- create Crawler method to return these
-    let playerImg = new Image();
-    playerImg.src = mage.src;
-    let crawlerImg = new Image();
-    crawlerImg.src = crawler.src;
-
-    // render on battle screen
-    ctx2.drawImage(playerImg, 50,50, 64, 64);
-    ctx2.drawImage(crawlerImg, battleScreen.width - 50 - 64, 50, 64, 64);
-}
-
-function drawBattleHeader(ctx, text, x, y, color) {
-    ctx.fillStyle = color;
-    ctx.font = "26px 'Press Start 2P'";
-    ctx.fillText(text, x, y);
-}
-
-
-// function to receive player input
-const chooseAction = (crawler) => {
-    // logic goes here
-    // kill opponent in development
-    document.addEventListener('keypress', function(e) {
-        if (e.keyCode === 13 ) {
-            let atk = mage.rollAttack(mage.level, 8);
-            console.log(atk);
-            return crawler.hp -= atk;
+const startBattle = (crawler) => {
+    drawBattleScreen();
+    drawBattleHeader(ctx2, 'ROLL FOR INITIATIVE',165,50, '#000');
+    drawParticipants(crawler);
+    console.log(turn,1)
+    document.addEventListener('keydown', function(e) {
+        if (e.keyCode === 49){
+            // console.log(turn,2)
+            battle(crawler);
+        } else {
         }
     })
 }
 
-const startBattle = (crawler) => {
-        drawBattleScreen();
-        drawBattleHeader(ctx2, 'ROLL FOR INITIATIVE',165,50, '#000');
-        drawParticipants(crawler);
-        battle(crawler);
-    }
-    
-    const battle = (crawler) => {
-        btmRight.innerHTML = "<h3>p: " + mage.hp + "  m: " + crawler.hp + "</h3>";
-        let turn = 1;
-        while (crawler.hp > 0 && mage.hp > 0) {
-            if (turn%2 === 0) {
-                mage.hp -= crawler.rollAttack(crawler.level, 4);
-            } else {
-                chooseAction(crawler);
-            }
-            turn++
+const battle = (crawler) => {
+    // console.log(turn,3);
+    if (crawler.hp > 0 && mage.hp > 0 ){
+        if (turn%2 === 0) {
+            setTimeout( function() {
+                mage.hp -= 0.5 * (crawler.rollAttack(crawler.level,4));
+            }, 750)
+        } else {
+            crawler.hp -= mage.rollAttack(1,8);
         }
+        btmRight.innerHTML = "<h3>p: " + mage.hp + "  m: " + crawler.hp + "</h3>";
+        turn++;
+        console.log("post atk: ",turn)
+    } else {
         restart();
+        turn = 0;
+    }
 }
 
-document.addEventListener("DOMContentLoaded", function() {
+// ********************* DOM Stuff *********************//
 
+document.addEventListener("DOMContentLoaded", function() {
+    
     // create crawlers
     mage = new Crawler(10, 10,'../img/plc-mage-32.png');
     mush = new Crawler(200, 50,'../img/wandering_mushroom_new.png');
-
+    
+    // for dev purposes
+    btmRight.innerHTML = "<h3>p: " + mage.hp + "  m: " + mush.hp + "</h3>";
+    
     // set up event listener for movement keypress
     document.addEventListener('keydown', movementInputHandler);
     document.addEventListener('keydown', battleInputHandler);
