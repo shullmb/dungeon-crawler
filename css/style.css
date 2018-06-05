@@ -23,7 +23,7 @@ h3 {
      background-color: #640D09;
      padding: 1em;
      width: 52em;
-     height: 80vh;
+     height: 39em;
      margin: 1em auto;
      display: grid;
      grid-gap: 1em;
@@ -73,7 +73,7 @@ canvas#game {
     z-index: 0;
 }
 
-canvas#battle {
+canvas#battle-screen {
     position: absolute;
     top: 0;
     left: 0;

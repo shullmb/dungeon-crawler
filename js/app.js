@@ -25,10 +25,62 @@ var mush;
 
 // helper functions
 
+// super complicated game loop logic
+const setLoopInterval = function() {
+    return setInterval(function () {
+        if (dungeonLoopRunning) {
+            dungeonLoop()
+        } else {
+            clearInterval(loopHandle);
+            startBattle(mush);
+        }
+    }, 60);
+}
+
 // roll die
 const roll = (numSides) => {
-    return Math.floor(Math.random() * numSides);
+    return Math.ceil(Math.random() * (numSides));
 }
+// function for keypress in battle mode
+const battleInputHandler = (e) => {
+    if (battleLoopRunning) {
+        switch(e.keyCode) {
+            case 49:
+                console.log('keypressed')
+                break;
+            case 50:
+                console.log('keypressed')
+                break;
+            case 51:
+                console.log('keypressed')
+                break;
+
+        }
+    }
+}
+
+// function for keypress in dungeon roaming mode
+const movementInputHandler = (e) => {
+    // console.log(e.keyCode);
+    // disallow movement when battle screen is active
+    if (dungeonLoopRunning) {
+        switch (true) {
+            case (e.keyCode === 87 || e.keyCode === 38):
+                mage.y -= 10;
+                break;
+            case (e.keyCode === 83 || e.keyCode === 40):
+                mage.y += 10;
+                break;
+            case (e.keyCode === 65 || e.keyCode === 37):
+                mage.x -= 10;
+                break;
+            case (e.keyCode === 68 || e.keyCode === 39):
+                mage.x += 10;
+                break;
+        }
+    }
+}
+
 
 // create Crawler object to populate dungeon
 class Crawler {
@@ -40,6 +92,7 @@ class Crawler {
         this.width = 32;
         this.height = 32;
         this.level = 1;
+        this.initiative = 0;
         // randomize starting hp a little
         this.hp = 8 + Math.round(Math.random() * 3);
     }
@@ -75,46 +128,7 @@ const detectEncounter = () => {
         // trigger encounter screen as soon as i know how
         ctx.save();
         dungeonLoopRunning = false;
-    }
-}
-
-// function for keypress in dungeon roaming mode
-const movementInputHandler = (e) => {
-    // console.log(e.keyCode);
-    // disallow movement when battle screen is active
-    if (dungeonLoopRunning) {
-        switch(true) {
-            case (e.keyCode === 87 || e.keyCode === 38):
-                mage.y -= 10;
-                break;
-            case (e.keyCode === 83 || e.keyCode === 40):
-                mage.y += 10;
-                break;
-            case (e.keyCode === 65 || e.keyCode === 37):
-                mage.x -= 10;
-                break;
-            case (e.keyCode === 68 || e.keyCode === 39):
-                mage.x += 10;
-                break;
-        }
-    }
-}
-
-// function for keypress in battle mode
-const battleInputHandler = (e) => {
-    if (battleLoopRunning) {
-        switch(e.keyCode) {
-            case 49:
-                console.log('keypressed')
-                break;
-            case 50:
-                console.log('keypressed')
-                break;
-            case 51:
-                console.log('keypressed')
-                break;
-
-        }
+        battleLoopRunning = true;
     }
 }
 
@@ -139,15 +153,16 @@ const dungeonLoop = () => {
 
 // utility function to test game state on restart
 const restart = () => {
-    ctx2.clearRect(0,0,battle.width,battle.height);
+    ctx2.clearRect(0,0,battleScreen.width,battleScreen.height);
     ctx.restore();
     battleLoopRunning = false;
     dungeonLoopRunning = true;
+    loopHandle = setLoopInterval();
 }
 
 // draw battle screen stage
 const drawBattleScreen = () => {
-    ctx2.clearRect(0,0,battle.width,battle.height);
+    ctx2.clearRect(0,0,battleScreen.width,battleScreen.height);
     ctx2.fillStyle = 'rgba(66,66,66,0.8)';
     ctx2.strokeRect(10,10,812,396);
     ctx2.fillRect(10,10,812,396);
@@ -163,7 +178,7 @@ const drawParticipants = (crawler) => {
 
     // render on battle screen
     ctx2.drawImage(playerImg, 50,50, 64, 64);
-    ctx2.drawImage(crawlerImg, battle.width - 50 - 64, 50, 64, 64);
+    ctx2.drawImage(crawlerImg, battleScreen.width - 50 - 64, 50, 64, 64);
 }
 
 function drawBattleHeader(ctx, text, x, y, color) {
@@ -176,7 +191,7 @@ function drawBattleHeader(ctx, text, x, y, color) {
 // function to receive player input
 const chooseAction = (crawler) => {
     // logic goes here
-    // kill opponent in development -- this fires repeatedly
+    // kill opponent in development
     document.addEventListener('keypress', function(e) {
         if (e.keyCode === 13 ) {
             let atk = mage.rollAttack(mage.level, 8);
@@ -187,20 +202,24 @@ const chooseAction = (crawler) => {
 }
 
 const startBattle = (crawler) => {
-    battleLoopRunning = true;
-    drawBattleScreen();
-    drawBattleHeader(ctx2, 'ROLL FOR INITIATIVE',165,50, '#000');
-    drawParticipants(crawler);
-    battle(crawler);
-}
-
-const battle = (crawler) => {
-    btmRight.innerHTML = "<h3>p: " + mage.hp + "  m: " + mush.hp + "</h3>";
-
-    chooseAction(crawler);
-    if (mush.hp <= 0) {
-        restart();
+        drawBattleScreen();
+        drawBattleHeader(ctx2, 'ROLL FOR INITIATIVE',165,50, '#000');
+        drawParticipants(crawler);
+        battle(crawler);
     }
+    
+    const battle = (crawler) => {
+        btmRight.innerHTML = "<h3>p: " + mage.hp + "  m: " + crawler.hp + "</h3>";
+        let turn = 1;
+        while (crawler.hp > 0 && mage.hp > 0) {
+            if (turn%2 === 0) {
+                mage.hp -= crawler.rollAttack(crawler.level, 4);
+            } else {
+                chooseAction(crawler);
+            }
+            turn++
+        }
+        restart();
 }
 
 document.addEventListener("DOMContentLoaded", function() {
@@ -213,18 +232,6 @@ document.addEventListener("DOMContentLoaded", function() {
     document.addEventListener('keydown', movementInputHandler);
     document.addEventListener('keydown', battleInputHandler);
     
-    // start game loop
-    loopHandle = setInterval( function() {
-        if (dungeonLoopRunning == true) {
-            dungeonLoop();
-        } else {
-            startBattle(mush);
-        }
-    }, 60);
-    
-
-
-
-
-
+    // start game loop  
+    loopHandle = setLoopInterval();
 })
