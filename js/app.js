@@ -21,6 +21,8 @@ var turn = 1;
 // DOM hooks
 const topRight = document.getElementById('top-right');
 const btmRight = document.getElementById('btm-right');
+const topLeft = document.getElementById('top-left');
+const btmLeft = document.getElementById('btm-left');
 
 // declare crawlers
 var mage;
@@ -36,8 +38,6 @@ const setLoopInterval = function() {
         } else {
             clearInterval(loopHandle);
             startBattle(mush);
-            // console.log(isItRunning);
-            // isItRunning++;
         }
     }, 60);
 }
@@ -75,6 +75,13 @@ const drawBattleHeader = (ctx, text, x, y, color) => {
     ctx.fillText(text, x, y);
 }
 
+//clear battle text 
+const clearBattleText = () => {
+    ctx2.clearRect(150, 100, 200, 50);
+    ctx2.fillStyle = 'rgba(66,66,66,.8)';
+    ctx2.fillRect(150, 100, 200, 50);
+}
+
 //  draw attack choices
 const drawAttackChoices = () => {
     let spellOne = new Image();
@@ -86,6 +93,7 @@ const drawAttackChoices = () => {
 
 // function for keypress in battle mode
 const battleInputHandler = (e,crawler) => {
+    // need to add logic re: spell slots
     if (battleLoopRunning) {
         switch(e.keyCode) {
             case 49:
@@ -194,7 +202,7 @@ const detectEncounter = () => {
         && mage.x + mage.width > mush.x
         && mage.y < mush.y + mush.height
         && mage.y + mage.height > mush.y) {
-        console.log('Prepare for BATTTLE!')
+        console.log('detectEncounter triggered');
         // trigger encounter screen as soon as i know how
         ctx.save();
         dungeonLoopRunning = false;
@@ -206,7 +214,6 @@ const detectEncounter = () => {
 const restart = () => {
     ctx2.clearRect(0,0,battleScreen.width,battleScreen.height);
     ctx.restore();
-    battleLoopRunning = false;
     dungeonLoopRunning = true;
     loopHandle = setLoopInterval();
 }
@@ -216,43 +223,49 @@ const startBattle = (crawler) => {
     drawBattleHeader(ctx2, 'ROLL FOR INITIATIVE',165,50, '#000');
     drawAttackChoices();
     drawParticipants(crawler);
-    while (crawler.hp > 0 && mage.hp > 0 ){
-        battle(crawler);
+    while (battleLoopRunning) {
+        if (crawler.hp > 0 && mage.hp > 0 ){
+            battle(crawler);
+        } else {
+            battleLoopRunning = false;
+            restart();
+            turn = 0;
+        }
     }
+
 }
 
 const battle = (crawler) => {
-    if (battleLoopRunning){
-        if (turn%2 === 0) {
-            mage.hp -= crawler.rollCantrip();
-        } else {
-            document.addEventListener('keyup', function(e){
-                switch (e.keyCode) {
-                    case 49:
-                        console.log('cantrip');
-                        crawler.hp -= mage.rollCantrip();
-                        break;
-                        case 50:
-                        console.log('med attack')
-                        crawler.hp -= mage.rollAttack(8);
-                        mage.spellSlots -= 1
-                        break;
-                        case 51:
-                        console.log('big attack')
-                        crawler.hp -= mage.rollAttack(12);
-                        mage.spellSlots -= 2
-                        break;
-                }
-            })
-        }
-        btmRight.innerHTML = "<h3>p: " + mage.hp + "  m: " + crawler.hp + "</h3>";
-        turn++;
-        
+    if (turn%2 === 0) {
+        drawBattleHeader(ctx2,"Enemy Rolls...",165,50,"red");
+        mage.hp -= crawler.rollCantrip()
+        // battle(crawler);
     } else {
-        btmRight.innerHTML = "<h3>p: " + mage.hp + "  m: " + crawler.hp + "</h3>";
-        restart();
-        turn = 0;
+        document.addEventListener('keyup', function(e){
+            switch (true) {
+                case (e.keyCode === 49):
+                    console.log('cantrip');
+                    let atk = mage.rollCantrip();
+                    clearBattleText();
+                    drawBattleHeader(ctx2,"Hit for " + atk,200,100,'red');
+                    clearBattleText();
+                    crawler.hp -= atk;
+                    break;
+                case (e.keyCode === 50):
+                    console.log('med attack')
+                    crawler.hp -= mage.rollAttack(8);
+                    mage.spellSlots -= 1
+                    break;
+                case (e.keyCode === 51):
+                    console.log('big attack')
+                    crawler.hp -= mage.rollAttack(12);
+                    mage.spellSlots -= 2
+                    break;
+            }
+        })
     }
+    turn++;
+    // battle(crawler);
 }
 
 // ********************* DOM Stuff *********************//
