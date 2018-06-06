@@ -82,19 +82,33 @@ const clearBattleText = () => {
     ctx2.fillRect(150, 100, 200, 50);
 }
 
+// draw attack message
+const drawAttackMsg = (atk) => {
+    drawBattleHeader(ctx2, 'Attack', 350, 50, 'white');
+    drawBattleHeader(ctx2, "Hit for " + atk, 300, 100, 'red');
+}
+
 //  draw attack choices
 const drawAttackChoices = () => {
     let spellOne = new Image();
-    spellOne.src = "../img/throw_icicle_new_128.png"
+    let spellTwo = new Image();
+    let spellThree = new Image();
 
-    ctx2.drawImage(spellOne,100,200,128,128);
+    spellOne.src = "../img/throw_icicle_new_128.png";
+    spellTwo.src = "../img/fireball_new_128.png";
+    spellThree.src = "../img/death_channel_128.png";
+
+    ctx2.drawImage(spellOne,160,200,128,128);
+
+    ctx2.drawImage(spellTwo,348,200,128,128);
+
+    ctx2.drawImage(spellThree,348+188,200,128,128);
 
 }
 
-const redraw = (crawler) => {
-    let msg = (currentPlayer == mage) ? "Roll Attack" : "Enemy Rolls";
+const redrawBattleScreen = (crawler) => {
+    // let msg = (currentPlayer == mage) ? "Roll Attack" : "Enemy Rolls";
     drawBattleScreen();
-    drawBattleHeader(ctx2, msg, 390, 50, 'white');
     drawParticipants(crawler);
 }
 
@@ -138,50 +152,6 @@ const movementInputHandler = (e) => {
                 break;
         }
     }
-}
-
-
-// create Crawler object to populate dungeon
-class Crawler {
-    constructor(x,y,src) {
-        this.x = x;
-        this.y = y;
-        this.src = src;
-        // add larger image properties for battle screen
-        this.width = 32;
-        this.height = 32;
-        this.level = 1;
-        this.initiative = 0;
-        // randomize starting hp a little
-        this.hp = 8 + Math.round(Math.random() * 3);
-        this.spellSlots = 3;
-    }
-
-    // ctx argument to choose context to render to
-    render(ctx) {
-        let spriteImg = new Image();
-        spriteImg.src = this.src;
-        ctx.drawImage(spriteImg,this.x,this.y,this.width,this.height);
-    }
-
-    // cantrip roll
-    rollCantrip(){
-        return this.level * roll(8)
-    }
-
-    // attack roll
-    rollAttack( numSides) {
-        return this.level * roll(numSides);
-    }
-
-    // level up
-    levelUp(){
-        this.level += 1
-        this.hp += this.level * roll(8) + 4;
-        this.spellSlots += Math.round(this.level/2);
-    }
-
-
 }
 
 // function for dungeoneering loop
@@ -245,38 +215,39 @@ const battle = (crawler) => {
     var playerInputGiven = false;
     if (crawler.hp > 0 && mage.hp > 0 ){
         if (playerInputGiven && currentPlayer == crawler) {
+            console.log(crawler);
             mage.hp -= crawler.rollCantrip()
-            // battle(crawler);
         } else {
             document.addEventListener('keyup', function(e){
                 let atk;
-                switch (true) {
-                    case (e.keyCode === 49):
-                        console.log('cantrip');
-                        atk = mage.rollCantrip();
-                        redraw(crawler);
-                        // clearBattleText();
-                        drawBattleHeader(ctx2,"Hit for " + atk,200,100,'red');
-                        crawler.hp -= atk;
+                if (battleLoopRunning) {
+                    switch (true) {
+                        case (e.keyCode === 49):
+                            console.log('cantrip');
+                            atk = mage.rollCantrip();
+                            redrawBattleScreen(crawler);
+                            drawAttackMsg(atk);
+                            crawler.hp -= atk;
+                            break;
+                        case (e.keyCode === 50):
+                            console.log('med attack')
+                            atk = mage.rollAttack(8);
+                            redrawBattleScreen(crawler);
+                            drawAttackMsg(atk);
+                            crawler.hp -= atk;
+                            mage.spellSlots -= 1
+                            break;
+                        case (e.keyCode === 51):
+                            console.log('big attack')
+                            atk = mage.rollAttack(12);
+                            redrawBattleScreen(crawler);
+                            drawAttackMsg(atk);
+                            crawler.hp -= atk;
+                            mage.spellSlots -= 2
                         break;
-                    case (e.keyCode === 50):
-                        console.log('med attack')
-                        atk = mage.rollAttack(8);
-                        clearBattleText();
-                        drawBattleHeader(ctx2,"Hit for " + atk,200,100,'red');
-                        crawler.hp -= atk;
-                        mage.spellSlots -= 1
-                        break;
-                    case (e.keyCode === 51):
-                        console.log('big attack')
-                        atk = mage.rollAttack(12);
-                        clearBattleText();
-                        drawBattleHeader(ctx2,"Hit for " + atk,200,100,'red');
-                        crawler.hp -= atk;
-                        mage.spellSlots -= 2
-                        break;
+                    }
+                    playerInputGiven = true;
                 }
-                playerInputGiven = true;
             })
         }
         turn++;
@@ -285,6 +256,49 @@ const battle = (crawler) => {
         restart();
         turn = 0;
     }
+}
+
+// create Crawler object to populate dungeon
+class Crawler {
+    constructor(x, y, src) {
+        this.x = x;
+        this.y = y;
+        this.src = src;
+        // add larger image properties for battle screen
+        this.width = 32;
+        this.height = 32;
+        this.level = 1;
+        this.initiative = 0;
+        // randomize starting hp a little
+        this.hp = 8 + Math.round(Math.random() * 3);
+        this.spellSlots = 3;
+    }
+
+    // ctx argument to choose context to render to
+    render(ctx) {
+        let spriteImg = new Image();
+        spriteImg.src = this.src;
+        ctx.drawImage(spriteImg, this.x, this.y, this.width, this.height);
+    }
+
+    // cantrip roll
+    rollCantrip() {
+        return this.level * roll(8)
+    }
+
+    // attack roll
+    rollAttack(numSides) {
+        return this.level * roll(numSides);
+    }
+
+    // level up
+    levelUp() {
+        this.level += 1
+        this.hp += this.level * roll(8) + 4;
+        this.spellSlots += Math.round(this.level / 2);
+    }
+
+
 }
 
 // ********************* DOM Stuff *********************//
