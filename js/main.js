@@ -19,7 +19,8 @@ var battleMode = false;
 var player;
 var crawlers = [];
 var crawler = {current: null};
-var turn = null;
+
+var playerTurn = null;
 
 // ***UI DOM HOOKS*** //
 var topRight = document.getElementById('top-right');
@@ -27,6 +28,8 @@ var btmRight = document.getElementById('btm-right');
 var topLeft = document.getElementById('top-left');
 var btmLeft = document.getElementById('btm-left');
 var hitPoints = document.getElementById('hit-points');
+var rollValue = document.getElementById('roll-value');
+var msgBoard = document.getElementById('message-board');
 
 // ***HELPER FUNCTIONS*** //
 
@@ -47,7 +50,14 @@ var rollDie = function(n) {
     return Math.ceil(Math.random() * n);
 }
 
-// movement input handler in dungeon mode
+// check if it is the player's turn
+var whoseTurn = function() {
+    if (player.initiative >= crawler.current.initiative) {
+          playerTurn = true;
+    }
+}
+
+// input handler in dungeon mode
 var movementInputHandler = function(e) {
     // disallow movement when battle screen is active
     if (dungeonMode) {
@@ -68,6 +78,24 @@ var movementInputHandler = function(e) {
     }
 }
 
+// input Handler battle mode
+var battleInputHandler = function(e) {
+    if (battleMode) {
+        switch(true) {
+            case (e.keyCode === 49):
+                console.log('cantrip')
+                break;
+            case (e.keyCode === 50):
+                console.log('med attack')
+                break;
+            case (e.keyCode === 51):
+                console.log('big attack')
+                break;
+        }
+    }
+
+}
+
 
 // ***CRAWLER PROTOTYPE & GENERATOR*** //
 function Crawler(x, y, src) {
@@ -81,6 +109,7 @@ function Crawler(x, y, src) {
     this.initiative = 0;
     this.hp = 8 + Math.round(Math.random() * 3); // randomize starting hp a little
     this.spellSlots = 3;
+    this.initiative = 0;
 }
 
 // render to a canvas
@@ -88,6 +117,11 @@ Crawler.prototype.render = function(ctx) {
     var spriteImg = new Image();
     spriteImg.src = this.src;
     ctx.drawImage(spriteImg, this.x, this.y, this.width, this.height);
+}
+
+// roll for initiatice
+Crawler.prototype.rollInitiative = function() {
+    this.initiative = rollDie(20);
 }
 
 // cantrip roll - player level x d8
@@ -109,7 +143,8 @@ Crawler.prototype.levelUp = function() {
 
 // func to generate crawlers
 var generateCrawlers = function() {
-    var numCrawlers = Math.ceil(Math.random() * 5);
+    // generate 3 - 6 crawlers
+    var numCrawlers = 2 + Math.ceil(Math.random() * 4);
     var crawlerSprites = ["../img/plc-shroom-32.png", "../img/plc-deathooze-32.png", "../img/plc-eye-32.png", "../img/plc-snail-32.png"]
     for (var i = 0; i < numCrawlers; i++) {
         // random coordinates -- add/substract 32 to account for player start pos
@@ -128,17 +163,13 @@ var generateCrawlers = function() {
 // ***GAME PLAY & LOGIC*** //
 var initGame = function() {
     player = new Crawler(0, 0, '../img/plc-mage-32.png');
-    crawler.current = new Crawler(50, 50, '../img/plc-shroom-32.png');
-
     generateCrawlers();
-
     hitPoints.textContent = player.hp;   
 }
 
 var startDungeonMode = function() {
     ctx.clearRect(0, 0, ctxWidth, ctxHeight);
     player.render(ctx);
-    crawler.current.render(ctx);
     crawlers.forEach( function(crawler) {
         crawler.render(ctx);
     })
@@ -146,21 +177,29 @@ var startDungeonMode = function() {
 }
 
 var detectEncounter = function() {
-    crawlers.forEach( function(crawler){
-        if ( player.x < crawler.x + crawler.width
-            && player.x + player.width > crawler.x
-            && player.y < crawler.y + crawler.height
-            && player.y + player.height > crawler.y) {
+    crawlers.forEach( function(crwlr){
+        if ( player.x < crwlr.x + crwlr.width
+            && player.x + player.width > crwlr.x
+            && player.y < crwlr.y + crwlr.height
+            && player.y + player.height > crwlr.y) {
                 console.log('they touchin!')
                 ctx.save();
+                crawler.current = crwlr;
                 dungeonMode = false;
                 battleMode = true;
         }
     })
+    // console.log(crawler.current);
 }
 
 var startBattleMode = function() {
     console.log('battlemode initiated');
+    msgBoard.textContent = 'ROLL FOR INITIATIVE!';
+    player.rollInitiative();
+    crawler.current.rollInitiative();
+    rollValue.textContent = 'you roll ' + player.initiative;
+    whoseTurn();
+
 }
 
 
@@ -168,6 +207,7 @@ var startBattleMode = function() {
 document.addEventListener('DOMContentLoaded', function(){
     initGame();
     document.addEventListener('keydown', movementInputHandler);
+    document.addEventListener('keydown', battleInputHandler);
 
 
 
