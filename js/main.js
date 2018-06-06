@@ -195,11 +195,34 @@ var detectEncounter = function() {
 var startBattleMode = function() {
     console.log('battlemode initiated');
     msgBoard.textContent = 'ROLL FOR INITIATIVE!';
+    rollValue.textContent = "."
+    setTimeout( function() {
+        rollValue.textContent = ".."
+    },250);
+    setTimeout( function() {
+        rollValue.textContent = "..."
+    },500);
     player.rollInitiative();
     crawler.current.rollInitiative();
-    rollValue.textContent = 'you roll ' + player.initiative;
+    setTimeout( function() {
+        rollValue.textContent = player.initiative;
+    },1500);
     whoseTurn();
+}
 
+var crawlerAttack = function() {
+    var atk;
+    var atkSelection = rollDie(20);
+    if (atkSelection >= 0 && atkSelection < 14) {
+        atk = crawler.current.rollCantrip();
+    } else if (atkSelection >= 14 && atkSelection > 20) {
+        atk = crawler.current.rollAttack(6);
+    } else {
+        atk = crawler.current.rollAttack(10)
+    }
+    player.hp -= atk;
+    msgBoard.textContent = "You've been hit for " + atk;
+    hitPoints.textContent = player.hp;
 }
 
 
