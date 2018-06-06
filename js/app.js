@@ -53,7 +53,6 @@ const drawBattleScreen = () => {
     ctx2.fillStyle = 'rgba(66,66,66,0.8)';
     ctx2.strokeRect(10, 10, 812, 396);
     ctx2.fillRect(10, 10, 812, 396);
-
 }
 
 // draw participants on battle screen
@@ -69,29 +68,39 @@ const drawParticipants = (crawler) => {
     ctx2.drawImage(crawlerImg, battleScreen.width - 50 - 64, 50, 64, 64);
 }
 
-//draw message on header of battle screen
-function drawBattleHeader(ctx, text, x, y, color) {
+// draw message on header of battle screen
+const drawBattleHeader = (ctx, text, x, y, color) => {
     ctx.fillStyle = color;
     ctx.font = "26px 'Press Start 2P'";
     ctx.fillText(text, x, y);
 }
 
-// function for keypress in battle mode
-const battleInputHandler = (e) => {
-//     if (battleLoopRunning) {
-//         switch(e.keyCode) {
-//             case 49:
-//                 return 
-//                 break;
-//             case 50:
-                
-//                 break;
-//             case 51:
-                
-//                 break;
+//  draw attack choices
+const drawAttackChoices = () => {
+    let spellOne = new Image();
+    spellOne.src = "../img/throw_icicle_new_128.png"
 
-//         }
-//     }
+    ctx2.drawImage(spellOne,100,100,64,64);;
+
+}
+
+// function for keypress in battle mode
+const battleInputHandler = (e,crawler) => {
+    if (battleLoopRunning) {
+        switch(e.keyCode) {
+            case 49:
+                crawler.hp -= mage.rollCantrip();
+                break;
+            case 50:
+                crawler.hp -=mage.rollAttack(8);
+                mage.spellSlots -= 1
+                break;
+            case 51:
+                crawler.hp -=mage.rollAttack(12);
+                mage.spellSlots -= 2
+                break;
+        }
+    }
 }
 
 // function for keypress in dungeon roaming mode
@@ -130,6 +139,7 @@ class Crawler {
         this.initiative = 0;
         // randomize starting hp a little
         this.hp = 8 + Math.round(Math.random() * 3);
+        this.spellSlots = 3;
     }
 
     // ctx argument to choose context to render to
@@ -139,15 +149,21 @@ class Crawler {
         ctx.drawImage(spriteImg,this.x,this.y,this.width,this.height);
     }
 
+    // cantrip roll
+    rollCantrip(){
+        return this.level * roll(8)
+    }
+
     // attack roll
-    rollAttack(numDice, numSides) {
-        return numDice * roll(numSides);
+    rollAttack( numSides) {
+        return this.level * roll(numSides);
     }
 
     // level up
     levelUp(){
         this.level += 1
         this.hp += this.level * roll(8) + 4;
+        this.spellSlots += Math.round(this.level/2);
     }
 
 
@@ -198,31 +214,42 @@ const restart = () => {
 const startBattle = (crawler) => {
     drawBattleScreen();
     drawBattleHeader(ctx2, 'ROLL FOR INITIATIVE',165,50, '#000');
+    drawAttackChoices();
     drawParticipants(crawler);
-    console.log(turn,1)
-    document.addEventListener('keydown', function(e) {
-        if (e.keyCode === 49){
-            // console.log(turn,2)
-            battle(crawler);
-        } else {
-        }
-    })
+    while (crawler.hp > 0 && mage.hp > 0 ){
+        battle(crawler);
+    }
 }
 
 const battle = (crawler) => {
-    // console.log(turn,3);
-    if (crawler.hp > 0 && mage.hp > 0 ){
+    if (battleLoopRunning){
         if (turn%2 === 0) {
-            setTimeout( function() {
-                mage.hp -= 0.5 * (crawler.rollAttack(crawler.level,4));
-            }, 750)
+            mage.hp -= crawler.rollCantrip();
         } else {
-            crawler.hp -= mage.rollAttack(1,8);
+            document.addEventListener('keyup', function(e){
+                switch (e.keyCode) {
+                    case 49:
+                        console.log('cantrip');
+                        crawler.hp -= mage.rollCantrip();
+                        break;
+                        case 50:
+                        console.log('med attack')
+                        crawler.hp -= mage.rollAttack(8);
+                        mage.spellSlots -= 1
+                        break;
+                        case 51:
+                        console.log('big attack')
+                        crawler.hp -= mage.rollAttack(12);
+                        mage.spellSlots -= 2
+                        break;
+                }
+            })
         }
         btmRight.innerHTML = "<h3>p: " + mage.hp + "  m: " + crawler.hp + "</h3>";
         turn++;
-        console.log("post atk: ",turn)
+        
     } else {
+        btmRight.innerHTML = "<h3>p: " + mage.hp + "  m: " + crawler.hp + "</h3>";
         restart();
         turn = 0;
     }
@@ -234,14 +261,14 @@ document.addEventListener("DOMContentLoaded", function() {
     
     // create crawlers
     mage = new Crawler(10, 10,'../img/plc-mage-32.png');
-    mush = new Crawler(200, 50,'../img/wandering_mushroom_new.png');
+    mush = new Crawler(50, 50,'../img/wandering_mushroom_new.png');
     
     // for dev purposes
     btmRight.innerHTML = "<h3>p: " + mage.hp + "  m: " + mush.hp + "</h3>";
     
     // set up event listener for movement keypress
     document.addEventListener('keydown', movementInputHandler);
-    document.addEventListener('keydown', battleInputHandler);
+    // document.addEventListener('keydown', battleInputHandler);
     
     // start game loop  
     loopHandle = setLoopInterval();
