@@ -49,9 +49,8 @@ rollDie = function(n) {
 
 // movement input handler in dungeon mode
 var movementInputHandler = function(e) {
-    console.log(e.keyCode);
     // disallow movement when battle screen is active
-    // if (dungeonMode) {
+    if (dungeonMode) {
         switch (true) {
             case (e.keyCode === 87 || e.keyCode === 38):
                 player.y -= 10;
@@ -66,7 +65,7 @@ var movementInputHandler = function(e) {
                 player.x += 10;
                 break;
         }
-    // }
+    }
 }
 
 
@@ -127,20 +126,43 @@ var generateCrawlers = function() {
 }
 
 // ***GAME PLAY & LOGIC*** //
+var initGame = function() {
+    player = new Crawler(0, 0, '../img/plc-mage-32.png');
+    crawler.current = new Crawler(50, 50, '../img/plc-shroom-32.png');
+
+    hitPoints.textContent = player.hp;   
+}
+
 var startDungeonMode = function() {
     ctx.clearRect(0, 0, ctxWidth, ctxHeight);
     player.render(ctx);
+    crawler.current.render(ctx);
     // crawlers.forEach( function(crawler) {
     //     crawler.render(ctx);
     // })
+    detectEncounter();
+}
 
+var detectEncounter = function() {
+    if ( player.x < crawler.current.x + crawler.current.width
+        && player.x + player.width > crawler.current.x
+        && player.y < crawler.current.y + crawler.current.height
+        && player.y + player.height > crawler.current.y) {
+            console.log('they touchin!')
+            ctx.save();
+            dungeonMode = false;
+            battleMode = true;
+    }
+}
+
+var startBattleMode = function() {
+    console.log('battlemode initiated');
 }
 
 
 // *** READY *** //
 document.addEventListener('DOMContentLoaded', function(){
-    player = new Crawler(0,0,'../img/plc-mage-32.png');
-
+    initGame();
 
     document.addEventListener('keydown', movementInputHandler);
 
