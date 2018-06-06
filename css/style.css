@@ -73,6 +73,17 @@ canvas#game {
     z-index: 0;
 }
 
+/* for rewrite */
+canvas#dungeon {
+    background: #2c2c2c;
+    background-image: url('../img/rect_gray_0_old.png');
+    background-repeat: repeat;
+    position: absolute;
+    top:0;
+    left: 0;
+    z-index: 5;
+}
+
 canvas#battle-screen {
     position: absolute;
     top: 0;
