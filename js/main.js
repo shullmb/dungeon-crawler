@@ -43,7 +43,7 @@ var setLoopInterval = function() {
 }
 
 // roll a die of n sides
-rollDie = function(n) {
+var rollDie = function(n) {
     return Math.ceil(Math.random() * n);
 }
 
@@ -111,16 +111,16 @@ Crawler.prototype.levelUp = function() {
 var generateCrawlers = function() {
     var numCrawlers = Math.ceil(Math.random() * 5);
     var crawlerSprites = ["../img/plc-shroom-32.png", "../img/plc-deathooze-32.png", "../img/plc-eye-32.png", "../img/plc-snail-32.png"]
-    for (var i; i < numCrawlers; i++) {
+    for (var i = 0; i < numCrawlers; i++) {
         // random coordinates -- add/substract 32 to account for player start pos
-        var randomX = 32 + Math.floor(Math.random * ctxWidth - 32);
-        var randomY = 32 + Math.floor(Math.random * ctxHeight - 32);
+        var randomX = 32 + Math.floor(Math.random() * parseInt(ctxWidth) - 32);
+        var randomY = 32 + Math.floor(Math.random() * parseInt(ctxHeight) - 32);
+
         // random sprite from array
         var randomSprite = crawlerSprites[Math.floor(Math.random() * crawlerSprites.length)];
         // instantiate random crawler
         var randomCrawler = new Crawler(randomX, randomY, randomSprite);
 
-        console.log(randomCrawler);
         crawlers.push(randomCrawler);
     }
 }
@@ -130,6 +130,8 @@ var initGame = function() {
     player = new Crawler(0, 0, '../img/plc-mage-32.png');
     crawler.current = new Crawler(50, 50, '../img/plc-shroom-32.png');
 
+    generateCrawlers();
+
     hitPoints.textContent = player.hp;   
 }
 
@@ -137,22 +139,24 @@ var startDungeonMode = function() {
     ctx.clearRect(0, 0, ctxWidth, ctxHeight);
     player.render(ctx);
     crawler.current.render(ctx);
-    // crawlers.forEach( function(crawler) {
-    //     crawler.render(ctx);
-    // })
+    crawlers.forEach( function(crawler) {
+        crawler.render(ctx);
+    })
     detectEncounter();
 }
 
 var detectEncounter = function() {
-    if ( player.x < crawler.current.x + crawler.current.width
-        && player.x + player.width > crawler.current.x
-        && player.y < crawler.current.y + crawler.current.height
-        && player.y + player.height > crawler.current.y) {
-            console.log('they touchin!')
-            ctx.save();
-            dungeonMode = false;
-            battleMode = true;
-    }
+    crawlers.forEach( function(crawler){
+        if ( player.x < crawler.x + crawler.width
+            && player.x + player.width > crawler.x
+            && player.y < crawler.y + crawler.height
+            && player.y + player.height > crawler.y) {
+                console.log('they touchin!')
+                ctx.save();
+                dungeonMode = false;
+                battleMode = true;
+        }
+    })
 }
 
 var startBattleMode = function() {
@@ -163,7 +167,6 @@ var startBattleMode = function() {
 // *** READY *** //
 document.addEventListener('DOMContentLoaded', function(){
     initGame();
-
     document.addEventListener('keydown', movementInputHandler);
 
 
