@@ -87,8 +87,15 @@ const drawAttackChoices = () => {
     let spellOne = new Image();
     spellOne.src = "../img/throw_icicle_new_128.png"
 
-    ctx2.drawImage(spellOne,100,100,64,64);;
+    ctx2.drawImage(spellOne,100,200,128,128);
 
+}
+
+const redraw = (crawler) => {
+    let msg = (currentPlayer == mage) ? "Roll Attack" : "Enemy Rolls";
+    drawBattleScreen();
+    drawBattleHeader(ctx2, msg, 390, 50, 'white');
+    drawParticipants(crawler);
 }
 
 // function for keypress in battle mode
@@ -207,6 +214,7 @@ const detectEncounter = () => {
         ctx.save();
         dungeonLoopRunning = false;
         battleLoopRunning = true;
+        startBattle(mush);
     }
 }
 
@@ -223,49 +231,60 @@ const startBattle = (crawler) => {
     drawBattleHeader(ctx2, 'ROLL FOR INITIATIVE',165,50, '#000');
     drawAttackChoices();
     drawParticipants(crawler);
-    while (battleLoopRunning) {
-        if (crawler.hp > 0 && mage.hp > 0 ){
+    document.addEventListener('keypress', function(e) {
+        if (e.keyCode === 13) {
             battle(crawler);
-        } else {
-            battleLoopRunning = false;
-            restart();
-            turn = 0;
         }
-    }
-
+    })
+    
 }
 
 const battle = (crawler) => {
-    if (turn%2 === 0) {
-        drawBattleHeader(ctx2,"Enemy Rolls...",165,50,"red");
-        mage.hp -= crawler.rollCantrip()
-        // battle(crawler);
+    var currentPlayer = (turn % 2 === 0) ? crawler : mage;
+    console.log(currentPlayer, turn);
+    var playerInputGiven = false;
+    if (crawler.hp > 0 && mage.hp > 0 ){
+        if (playerInputGiven && currentPlayer == crawler) {
+            mage.hp -= crawler.rollCantrip()
+            // battle(crawler);
+        } else {
+            document.addEventListener('keyup', function(e){
+                let atk;
+                switch (true) {
+                    case (e.keyCode === 49):
+                        console.log('cantrip');
+                        atk = mage.rollCantrip();
+                        redraw(crawler);
+                        // clearBattleText();
+                        drawBattleHeader(ctx2,"Hit for " + atk,200,100,'red');
+                        crawler.hp -= atk;
+                        break;
+                    case (e.keyCode === 50):
+                        console.log('med attack')
+                        atk = mage.rollAttack(8);
+                        clearBattleText();
+                        drawBattleHeader(ctx2,"Hit for " + atk,200,100,'red');
+                        crawler.hp -= atk;
+                        mage.spellSlots -= 1
+                        break;
+                    case (e.keyCode === 51):
+                        console.log('big attack')
+                        atk = mage.rollAttack(12);
+                        clearBattleText();
+                        drawBattleHeader(ctx2,"Hit for " + atk,200,100,'red');
+                        crawler.hp -= atk;
+                        mage.spellSlots -= 2
+                        break;
+                }
+                playerInputGiven = true;
+            })
+        }
+        turn++;
     } else {
-        document.addEventListener('keyup', function(e){
-            switch (true) {
-                case (e.keyCode === 49):
-                    console.log('cantrip');
-                    let atk = mage.rollCantrip();
-                    clearBattleText();
-                    drawBattleHeader(ctx2,"Hit for " + atk,200,100,'red');
-                    clearBattleText();
-                    crawler.hp -= atk;
-                    break;
-                case (e.keyCode === 50):
-                    console.log('med attack')
-                    crawler.hp -= mage.rollAttack(8);
-                    mage.spellSlots -= 1
-                    break;
-                case (e.keyCode === 51):
-                    console.log('big attack')
-                    crawler.hp -= mage.rollAttack(12);
-                    mage.spellSlots -= 2
-                    break;
-            }
-        })
+        battleLoopRunning = false;
+        restart();
+        turn = 0;
     }
-    turn++;
-    // battle(crawler);
 }
 
 // ********************* DOM Stuff *********************//
