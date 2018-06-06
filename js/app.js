@@ -23,6 +23,7 @@ const topRight = document.getElementById('top-right');
 const btmRight = document.getElementById('btm-right');
 const topLeft = document.getElementById('top-left');
 const btmLeft = document.getElementById('btm-left');
+const hitPoints = document.getElementById('hit-points');
 
 // declare crawlers
 var mage;
@@ -59,9 +60,9 @@ const drawBattleScreen = () => {
 const drawParticipants = (crawler) => {
     // create image objects and assign src -- create Crawler method to return these
     let playerImg = new Image();
-    playerImg.src = mage.src;
+    playerImg.src = mage.srcLrg;
     let crawlerImg = new Image();
-    crawlerImg.src = crawler.src;
+    crawlerImg.src = crawler.srcLrg;
 
     // render on battle screen
     ctx2.drawImage(playerImg, 50, 50, 64, 64);
@@ -113,24 +114,24 @@ const redrawBattleScreen = (crawler) => {
 }
 
 // function for keypress in battle mode
-const battleInputHandler = (e,crawler) => {
-    // need to add logic re: spell slots
-    if (battleLoopRunning) {
-        switch(e.keyCode) {
-            case 49:
-                crawler.hp -= mage.rollCantrip();
-                break;
-            case 50:
-                crawler.hp -=mage.rollAttack(8);
-                mage.spellSlots -= 1
-                break;
-            case 51:
-                crawler.hp -=mage.rollAttack(12);
-                mage.spellSlots -= 2
-                break;
-        }
-    }
-}
+// const battleInputHandler = (e,crawler) => {
+//     // need to add logic re: spell slots
+//     if (battleLoopRunning) {
+//         switch(e.keyCode) {
+//             case 49:
+//                 crawler.hp -= mage.rollCantrip();
+//                 break;
+//             case 50:
+//                 crawler.hp -=mage.rollAttack(8);
+//                 mage.spellSlots -= 1
+//                 break;
+//             case 51:
+//                 crawler.hp -=mage.rollAttack(12);
+//                 mage.spellSlots -= 2
+//                 break;
+//         }
+//     }
+// }
 
 // function for keypress in dungeon roaming mode
 const movementInputHandler = (e) => {
@@ -201,9 +202,10 @@ const startBattle = (crawler) => {
     drawBattleHeader(ctx2, 'ROLL FOR INITIATIVE',165,50, '#000');
     drawAttackChoices();
     drawParticipants(crawler);
-    document.addEventListener('keypress', function(e) {
+    document.addEventListener('keyup', function(e) {
         if (e.keyCode === 13) {
             battle(crawler);
+            hitPoints.textContent = mage.hp;
         }
     })
     
@@ -211,30 +213,33 @@ const startBattle = (crawler) => {
 
 const battle = (crawler) => {
     var currentPlayer = (turn % 2 === 0) ? crawler : mage;
-    console.log(currentPlayer, turn);
     var playerInputGiven = false;
+    let atk;
     if (crawler.hp > 0 && mage.hp > 0 ){
-        if (playerInputGiven && currentPlayer == crawler) {
-            console.log(crawler);
-            mage.hp -= crawler.rollCantrip()
+        console.log(currentPlayer.src.split("/")[(currentPlayer.src.split("/").length - 1)]);
+        if (currentPlayer == crawler) {
+            atk = crawler.rollCantrip();
+            mage.hp -= atk;
+            console.log('crawler hits for ',atk);
         } else {
+            // console.log(currentPlayer);
+            console.log('player turn');
             document.addEventListener('keyup', function(e){
-                let atk;
-                if (battleLoopRunning) {
+                if (battleLoopRunning && currentPlayer == mage) {
                     switch (true) {
                         case (e.keyCode === 49):
                             console.log('cantrip');
                             atk = mage.rollCantrip();
                             redrawBattleScreen(crawler);
                             drawAttackMsg(atk);
-                            crawler.hp -= atk;
+                            return crawler.hp -= atk;
                             break;
                         case (e.keyCode === 50):
                             console.log('med attack')
                             atk = mage.rollAttack(8);
                             redrawBattleScreen(crawler);
                             drawAttackMsg(atk);
-                            crawler.hp -= atk;
+                            return crawler.hp -= atk;
                             mage.spellSlots -= 1
                             break;
                         case (e.keyCode === 51):
@@ -242,7 +247,7 @@ const battle = (crawler) => {
                             atk = mage.rollAttack(12);
                             redrawBattleScreen(crawler);
                             drawAttackMsg(atk);
-                            crawler.hp -= atk;
+                            return crawler.hp -= atk;
                             mage.spellSlots -= 2
                         break;
                     }
@@ -252,6 +257,8 @@ const battle = (crawler) => {
         }
         turn++;
     } else {
+        mage.levelUp()
+        drawBattleHeader(ctx,"Level Up: " + mage.level, 348,50,'goldenrod' );
         battleLoopRunning = false;
         restart();
         turn = 0;
@@ -264,7 +271,7 @@ class Crawler {
         this.x = x;
         this.y = y;
         this.src = src;
-        // add larger image properties for battle screen
+        this.srcLrg = src.replace('32','64'); 
         this.width = 32;
         this.height = 32;
         this.level = 1;
@@ -307,7 +314,9 @@ document.addEventListener("DOMContentLoaded", function() {
     
     // create crawlers
     mage = new Crawler(10, 10,'../img/plc-mage-32.png');
-    mush = new Crawler(50, 50,'../img/wandering_mushroom_new.png');
+    mush = new Crawler(50, 50,'../img/plc-shroom-32.png');
+
+    hitPoints.textContent = mage.hp;
     
     // for dev purposes
     btmRight.innerHTML = "<h3>p: " + mage.hp + "  m: " + mush.hp + "</h3>";
