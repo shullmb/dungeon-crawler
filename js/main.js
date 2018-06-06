@@ -17,11 +17,11 @@ var dungeonMode = true;
 var battleMode = false;
 
 var player;
+var crawlers = [];
 var crawler = {current: null};
 var turn = null;
 
 // ***UI DOM HOOKS*** //
-
 var topRight = document.getElementById('top-right');
 var btmRight = document.getElementById('btm-right');
 var topLeft = document.getElementById('top-left');
@@ -43,15 +43,15 @@ var setLoopInterval = function() {
 }
 
 // roll a die of n sides
-function rollDie(n) {
+rollDie = function(n) {
     return Math.ceil(Math.random() * n);
 }
 
 // movement input handler in dungeon mode
-movementInputHandler = function(e) {
+var movementInputHandler = function(e) {
     console.log(e.keyCode);
     // disallow movement when battle screen is active
-    if (dungeonMode) {
+    // if (dungeonMode) {
         switch (true) {
             case (e.keyCode === 87 || e.keyCode === 38):
                 player.y -= 10;
@@ -66,11 +66,11 @@ movementInputHandler = function(e) {
                 player.x += 10;
                 break;
         }
-    }
+    // }
 }
 
 
-// ***CRAWLER PROTOTYPE*** //
+// ***CRAWLER PROTOTYPE & GENERATOR*** //
 function Crawler(x, y, src) {
     this.x = x;
     this.y = y;
@@ -93,36 +93,59 @@ Crawler.prototype.render = function(ctx) {
 
 // cantrip roll - player level x d8
 Crawler.prototype.rollCantrip = function() {
-    return this.level * roll(8)
+    return this.level * rollDie(8)
 }
 
 // attack roll - player level x d'n'
 Crawler.prototype.rollAttack = function(n) {
-    return this.level * roll(n);
+    return this.level * rollDie(n);
 }
 
 // level up
 Crawler.prototype.levelUp = function() {
     this.level += 1
-    this.hp += this.level * roll(8) + 4;
+    this.hp += this.level * rollDie(8) + 4;
     this.spellSlots += Math.round(this.level / 2);
 }
 
+// func to generate crawlers
+var generateCrawlers = function() {
+    var numCrawlers = Math.ceil(Math.random() * 5);
+    var crawlerSprites = ["../img/plc-shroom-32.png", "../img/plc-deathooze-32.png", "../img/plc-eye-32.png", "../img/plc-snail-32.png"]
+    for (var i; i < numCrawlers; i++) {
+        // random coordinates -- add/substract 32 to account for player start pos
+        var randomX = 32 + Math.floor(Math.random * ctxWidth - 32);
+        var randomY = 32 + Math.floor(Math.random * ctxHeight - 32);
+        // random sprite from array
+        var randomSprite = crawlerSprites[Math.floor(Math.random() * crawlerSprites.length)];
+        // instantiate random crawler
+        var randomCrawler = new Crawler(randomX, randomY, randomSprite);
 
-// ***GAME LOGIC*** //
+        console.log(randomCrawler);
+        crawlers.push(randomCrawler);
+    }
+}
 
+// ***GAME PLAY & LOGIC*** //
 var startDungeonMode = function() {
     ctx.clearRect(0, 0, ctxWidth, ctxHeight);
     player.render(ctx);
+    // crawlers.forEach( function(crawler) {
+    //     crawler.render(ctx);
+    // })
 
 }
 
+
 // *** READY *** //
 document.addEventListener('DOMContentLoaded', function(){
-    player = new Crawler(10,10,'../img/plc-mage-32.png');
+    player = new Crawler(0,0,'../img/plc-mage-32.png');
 
-    document.addEventListener('keypdown', movementInputHandler);
+
+    document.addEventListener('keydown', movementInputHandler);
+
 
 
     gameLoopHandle = setLoopInterval();
 })
+
