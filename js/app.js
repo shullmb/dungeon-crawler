@@ -141,16 +141,20 @@ var movementInputHandler = function(e) {
     if (dungeonMode) {
         switch (true) {
             case (e.keyCode === 87 || e.keyCode === 38):
-                player.y -= 10;
+                player.src = "../img/plc-mage-32-u.png";
+                player.y -= 5;
                 break;
             case (e.keyCode === 83 || e.keyCode === 40):
-                player.y += 10;
+                player.src = "../img/plc-mage-32-d.png";
+                player.y += 5;
                 break;
             case (e.keyCode === 65 || e.keyCode === 37):
-                player.x -= 10;
+                player.src = "../img/plc-mage-32-l.png";
+                player.x -= 5;
                 break;
             case (e.keyCode === 68 || e.keyCode === 39):
-                player.x += 10;
+                player.src = "../img/plc-mage-32.png";
+                player.x += 5;
                 break;
         }
     }
