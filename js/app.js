@@ -29,7 +29,7 @@ var crawler = {current: null, index: null};
 
 
 
-var playerTurn = null;
+var playerTurn = false;
 
 // ***UI DOM HOOKS*** //
 var topRight = document.getElementById('top-right');
@@ -178,7 +178,7 @@ var battleInputHandler = function(e) {
                 atk = player.rollAttack(12);
                 break;
             case(e.keyCode === 75): //kill the crawler
-                crawler.current.hp = 0;
+                atk = 100 * player.rollAttack(100);
                 break;
         }
         playerAttack(atk);
@@ -304,12 +304,12 @@ var generateCrawlers = function() {
         var y = Math.floor(Math.random() * ctxHeight);
         // pad for hero starting position and dungeon boundaries
 
-        console.log(i,x,y,'before',ctxWidth,ctxHeight);
+        // console.log(i,x,y,'before',ctxWidth,ctxHeight);
         var randomX = (x < 64) ? x + 64 : x;
         randomX = (x > ctxWidth) ? x - 64 : x;
         var randomY = (y < 64) ? y + 64 : y;
         randomY = (y > ctxHeight) ? y - 64 : y;
-        console.log(i, randomX, randomY, 'after', ctxWidth, ctxHeight);
+        // console.log(i, randomX, randomY, 'after', ctxWidth, ctxHeight);
         
         // random sprite from array
         var randomSprite = crawlerSprites[Math.floor(Math.random() * crawlerSprites.length)];
@@ -376,13 +376,15 @@ var detectEncounter = function() {
 var startBattleMode = function() {
     console.log('battlemode initiated');
     var turnMsg;
-    msgBoard.textContent = 'ROLL FOR INITIATIVE!';
+    updateMsgBoard('ROLL FOR INITIATIVE!');
     player.rollInitiative();
     crawler.current.rollInitiative();
     whoseTurn();
     turnMsg = !playerTurn ? 'Crawler hits first' : 'You attack first'
     animateRoll(player.initiative);
-    animateMsgBoard("Crawler rolled " + crawler.current.initiative);
+    setTimeout( function() {
+        animateMsgBoard("Crawler rolled " + crawler.current.initiative);
+    },500)
     setTimeout( function() {
         drawBattleScreen();
         drawBattleParticipants();
@@ -404,7 +406,7 @@ var crawlerAttack = function() {
         atk = crawler.current.rollAttack(10)
     }
     player.hp -= atk;
-    animateMsgBoard("You've been hit for " + atk);
+    updateMsgBoard("You've been hit for " + atk);
     hitPoints.textContent = player.hp;
 
     playerTurn = true;
@@ -423,25 +425,28 @@ var destroyCrawler = function() {
     crawlers.splice(crawler.index, 1);
     crawler.current = null;
     crawler.index = null;
+    // returnToDungeon();
 }
 
 var battleHandler = function() {
-    if (player.hp > 0 && crawler.current.hp > 0) {
-        if (!playerTurn) {
-            setTimeout(crawlerAttack, 2000); // DEBUG THIS
-        }
-
+    if (player.hp > 0 && crawler.current.hp > 0 && crawler.current != null) {
+        setTimeout(function(){        
+            if (!playerTurn) {
+                crawlerAttack(); // DEBUG THIS
+            } else {
+                animateMsgBoard('Choose your attack!');
+            }
+        },2000);
     } else if (crawler.current.hp <= 0 && crawlers.length !== 0) {
+        player.levelUp();
         // clear crawler from crawlers arr and crawler object
         destroyCrawler();
         // restart dungeon mode
         returnToDungeon();
-
-        player.levelUp();
     } else {
         // gameOver = true;
         if (crawlers.length == 0) {
-            endGame(win);
+            endGame('win');
         } else {
             // endGame(lose);
         }
