@@ -1,8 +1,11 @@
 // ***CANVAS SETUP*** //
 var dungeon = document.getElementById('dungeon'); //rename canvas id dungeon when implemented
 var battleScreen = document.getElementById('battle-screen')
+var darkness = document.getElementById('darkness');
 var ctxD = dungeon.getContext('2d');
 var ctxB = battleScreen.getContext('2d');
+var lantern = darkness.getContext('2d');
+
 var ctxWidth = 832;
 var ctxHeight = 416;
 
@@ -10,6 +13,9 @@ dungeon.width = ctxWidth;
 dungeon.height = ctxHeight;
 battleScreen.width = ctxWidth;
 battleScreen.height = ctxHeight;
+darkness.width = ctxWidth;
+darkness.height = ctxHeight;
+
 
 // ***GLOBAL VARIABLES*** //
 var gameLoopHandle;
@@ -20,6 +26,8 @@ var gameOver = false;
 var player;
 var crawlers = [];
 var crawler = {current: null, index: null};
+
+
 
 var playerTurn = null;
 
@@ -177,14 +185,41 @@ var battleInputHandler = function(e) {
 
 // ***CANVAS HELPERS*** //
 
+// shroud of darkness -- help from stack overflow https://stackoverflow.com/questions/6271419/how-to-fill-the-opposite-shape-on-canvas
+var drawGloom = function() {
+    lantern.clearRect(0, 0, ctxWidth, ctxHeight);
+    lantern.fillStyle = 'rgba(255,255,255,0)'; // 
+    lantern.fillRect(0, 0, ctxWidth, ctxHeight);
+    
+    // create canvas for mask here -- doesn't seem to work declared externally from thsi function
+    var light = document.createElement('canvas');
+    light.width = ctxWidth;
+    light.height = ctxHeight;
+    var gloom = light.getContext('2d');
+
+    // punch out for lantern effect
+    gloom.fillStyle = "rgba(0,0,0,0.9)";
+    gloom.fillRect(0, 0, ctxWidth, ctxHeight);
+    gloom.globalCompositeOperation = 'destination-out';
+    
+    // position lantern centered over player
+    gloom.filter = "blur(32px)";
+    gloom.arc(player.x + 16, player.y + 16, 64, 0, 2 * Math.PI);
+    gloom.fill();
+
+    lantern.drawImage(light, 0, 0);
+}
+
+// battle background
 var drawBattleScreen = function() {
-    // background
     ctxB.clearRect(0, 0, battleScreen.width, battleScreen.height);
     ctxB.fillStyle = 'rgba(66,66,66,0.8)';
     ctxB.strokeRect(10, 10, 812, 396);
     ctxB.fillRect(10, 10, 812, 396);
-    
-    // render hero + crawler large
+}
+
+// render hero + crawler large
+var drawBattleParticipants = function() {
     var pImg = new Image();
     var cImg = new Image();
     pImg.src = player.srcLrg;
@@ -261,16 +296,17 @@ var generateCrawlers = function() {
     var crawlerSprites = ["../img/plc-shroom-32.png", "../img/plc-deathooze-32.png", "../img/plc-eye-32.png", "../img/plc-snail-32.png"]
     for (var i = 0; i < numCrawlers; i++) {
         // random coordinates 
-        var randomX = Math.floor(Math.random() * parseInt(ctxWidth));
-        var randomY = Math.floor(Math.random() * parseInt(ctxHeight));
-
+        var x = Math.floor(Math.random() * ctxWidth);
+        var y = Math.floor(Math.random() * ctxHeight);
         // pad for hero starting position and dungeon boundaries
-        randomX = randomX < 64 ? randomX + 64 : randomX;
-        randomX = randomX > parseInt(ctxWidth) ? randomX - 64 : randomX;
-        randomY = randomY < 64 ? randomY + 64 : randomY;
-        randomY = randomY > parseInt(ctxHeight) ? randomY - 64 : randomY;
 
-
+        console.log(i,x,y,'before',ctxWidth,ctxHeight);
+        var randomX = (x < 64) ? x + 64 : x;
+        randomX = (x > ctxWidth) ? x - 64 : x;
+        var randomY = (y < 64) ? y + 64 : y;
+        randomY = (y > ctxHeight) ? y - 64 : y;
+        console.log(i, randomX, randomY, 'after', ctxWidth, ctxHeight);
+        
         // random sprite from array
         var randomSprite = crawlerSprites[Math.floor(Math.random() * crawlerSprites.length)];
         // instantiate random crawler
@@ -289,12 +325,17 @@ var initGame = function() {
 
 var endGame = function(status) {
     // status == win => show victory screen
+    if (status === 'win') {
+        drawBattleScreen();
+        drawBattleHeader(ctxB,"YOU WON!",330,408,'blue');
+    }
     // status == lose => show game over screen
     // press return to start new game
 }
 
 var startDungeonMode = function() {
     ctxD.clearRect(0, 0, ctxWidth, ctxHeight);
+    drawGloom();
     player.render(ctxD);
     crawlers.forEach( function(crawler) {
         crawler.render(ctxD);
@@ -340,7 +381,7 @@ var startBattleMode = function() {
     animateMsgBoard("Crawler rolled " + crawler.current.initiative);
     setTimeout( function() {
         drawBattleScreen();
-        updateRollValue('');
+        drawBattleParticipants();
         updateMsgBoard(turnMsg);
         drawBattleHeader(ctxB, "FIGHT!", 330, 50,'red');
         setTimeout(battleHandler, 1000);
@@ -386,7 +427,7 @@ var battleHandler = function() {
             setTimeout(crawlerAttack, 2000); // DEBUG THIS
         }
 
-    } else if (crawler.current.hp <= 0) {
+    } else if (crawler.current.hp <= 0 && crawlers.length !== 0) {
         // clear crawler from crawlers arr and crawler object
         destroyCrawler();
         // restart dungeon mode
@@ -396,7 +437,7 @@ var battleHandler = function() {
     } else {
         // gameOver = true;
         if (crawlers.length == 0) {
-            // endGame(win);
+            endGame(win);
         } else {
             // endGame(lose);
         }
@@ -409,8 +450,8 @@ document.addEventListener('DOMContentLoaded', function(){
     initGame();
     document.addEventListener('keydown', movementInputHandler);
     document.addEventListener('keydown', battleInputHandler);
-
-
+    
+    
 
     gameLoopHandle = setLoopInterval();
 })
