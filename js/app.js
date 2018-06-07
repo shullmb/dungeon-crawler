@@ -205,6 +205,12 @@ var initGame = function() {
     hitPoints.textContent = player.hp;   
 }
 
+var restart = function() {
+    ctxB.clearRect(0,0,battleScreen.width, battleScreen.height);
+    ctxD.restore();
+    gameLoopHandle = setLoopInterval();
+}
+
 var startDungeonMode = function() {
     ctxD.clearRect(0, 0, ctxWidth, ctxHeight);
     player.render(ctxD);
@@ -233,6 +239,7 @@ var detectEncounter = function() {
 
 var startBattleMode = function() {
     console.log('battlemode initiated');
+    var turnMsg;
     msgBoard.textContent = 'ROLL FOR INITIATIVE!';
     rollValue.textContent = "."
     setTimeout( function() {
@@ -247,12 +254,13 @@ var startBattleMode = function() {
         rollValue.textContent = player.initiative;
     },1500);
     whoseTurn();
+    turnMsg = !playerTurn ? 'Crawler goes first' : 'You attack first'
     setTimeout( function() {
-        msgBoard.textContent = "Crawler rolled a " + crawler.current.initiative;
+        msgBoard.textContent = "Crawler rolled " + crawler.current.initiative;
     },2000)
-    // !playerTurn ? crawlerAttack() : playerAttack();
     setTimeout( function() {
         drawBattleScreen();
+        drawBattleHeader(ctxB, turnMsg, 180, 50, '#000');
     }, 2250)
 
 }
