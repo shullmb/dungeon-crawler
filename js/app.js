@@ -2,7 +2,7 @@
 var dungeon = document.getElementById('dungeon'); //rename canvas id dungeon when implemented
 var battleScreen = document.getElementById('battle-screen')
 var ctx = dungeon.getContext('2d');
-var ctx2 = dungeon.getContext('2d');
+var ctx2 = battleScreen.getContext('2d');
 var ctxWidth = '832';
 var ctxHeight = '416';
 
@@ -91,9 +91,31 @@ var battleInputHandler = function(e) {
             case (e.keyCode === 51):
                 console.log('big attack')
                 break;
+            case(e.keyCode === 75 && e.keyCode === 17):
+                crawler.current.hp = 0;
+                break;
         }
     }
 
+}
+
+// ***CANVAS HELPERS*** //
+
+var drawBattleScreen = function() {
+    // background
+    ctx2.clearRect(0, 0, battleScreen.width, battleScreen.height);
+    ctx2.fillStyle = 'rgba(66,66,66,0.8)';
+    ctx2.strokeRect(10, 10, 812, 396);
+    ctx2.fillRect(10, 10, 812, 396);
+    
+    // render hero + crawler large
+    var pImg = new Image();
+    var cImg = new Image();
+    pImg.src = player.srcLrg;
+    cImg.src = crawler.current.srcLrg;
+
+    ctx2.drawImage(pImg, 50, 50, 64, 64);
+    ctx2.drawImage(cImg, battleScreen.width - 50 - 64, 50, 64, 64);
 }
 
 
@@ -223,6 +245,9 @@ var startBattleMode = function() {
         msgBoard.textContent = "Crawler rolled a " + crawler.current.initiative;
     },2000)
     // !playerTurn ? crawlerAttack() : playerAttack();
+    setTimeout( function() {
+        drawBattleScreen();
+    }, 2250)
 
 }
 
