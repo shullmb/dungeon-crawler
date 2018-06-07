@@ -18,7 +18,7 @@ var battleMode = false;
 
 var player;
 var crawlers = [];
-var crawler = {current: null};
+var crawler = {current: null, index: null};
 
 var playerTurn = null;
 
@@ -177,7 +177,7 @@ var startDungeonMode = function() {
 }
 
 var detectEncounter = function() {
-    crawlers.forEach( function(crwlr){
+    crawlers.forEach( function(crwlr,i){
         if ( player.x < crwlr.x + crwlr.width
             && player.x + player.width > crwlr.x
             && player.y < crwlr.y + crwlr.height
@@ -185,6 +185,7 @@ var detectEncounter = function() {
                 console.log('they touchin!')
                 ctx.save();
                 crawler.current = crwlr;
+                crawler.index = i;
                 dungeonMode = false;
                 battleMode = true;
         }
@@ -208,13 +209,18 @@ var startBattleMode = function() {
         rollValue.textContent = player.initiative;
     },1500);
     whoseTurn();
+    setTimeout( function() {
+        msgBoard.textContent = "Crawler rolled a " + crawler.current.initiative;
+    },2000)
+    // !playerTurn ? crawlerAttack() : playerAttack();
+
 }
 
 var crawlerAttack = function() {
     var atk;
     var atkSelection = rollDie(20);
     if (atkSelection >= 0 && atkSelection < 14) {
-        atk = crawler.current.rollCantrip();
+        atk = crawler.current.rollAttack(4);
     } else if (atkSelection >= 14 && atkSelection > 20) {
         atk = crawler.current.rollAttack(6);
     } else {
@@ -223,6 +229,34 @@ var crawlerAttack = function() {
     player.hp -= atk;
     msgBoard.textContent = "You've been hit for " + atk;
     hitPoints.textContent = player.hp;
+}
+
+var playerAttack = function() {
+    var atk;
+    // if input == 49
+        // cantrip
+    // if input == 50
+        // med atk
+    // if input == 51
+        // big atk
+
+}
+
+var battleHandler = function() {
+    if (player.hp > 0 && crawler.current.hp > 0) {
+        // battle
+    } else if (crawler.current.hp <= 0) {
+        // clear crawler from crawlers arr and crawler object
+        crawlers.splice(crawler.index, 1);
+        crawler.current = null;
+        crawler.index = null;
+
+        // restart dungeon mode
+
+    } else {
+        // gameOver();
+        // initGame();
+    }
 }
 
 
