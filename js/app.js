@@ -1,330 +1,283 @@
-// game setup
-const game = document.getElementById('game');
-const battleScreen = document.getElementById('battle-screen');
-const ctx = game.getContext('2d');
-const ctx2 = battleScreen.getContext('2d');
-const canvasWidth = '832';
-const canvasHeight = '416';
+// ***CANVAS SETUP*** //
+var dungeon = document.getElementById('dungeon'); //rename canvas id dungeon when implemented
+var battleScreen = document.getElementById('battle-screen')
+var ctx = dungeon.getContext('2d');
+var ctx2 = dungeon.getContext('2d');
+var ctxWidth = '832';
+var ctxHeight = '416';
 
-var isItRunning = 0
+dungeon.width = ctxWidth;
+dungeon.height = ctxHeight;
+battleScreen.width = ctxWidth;
+battleScreen.height = ctxHeight;
 
-game.width = canvasWidth;
-game.height = canvasHeight;
-battleScreen.width = canvasWidth;
-battleScreen.height = canvasHeight;
+// ***GLOBAL VARIABLES*** //
+var gameLoopHandle;
+var dungeonMode = true;
+var battleMode = false;
 
-var loopHandle;
-var dungeonLoopRunning = true;
-var battleLoopRunning = false;
-var turn = 1;
+var player;
+var crawlers = [];
+var crawler = {current: null, index: null};
 
-// DOM hooks
-const topRight = document.getElementById('top-right');
-const btmRight = document.getElementById('btm-right');
-const topLeft = document.getElementById('top-left');
-const btmLeft = document.getElementById('btm-left');
-const hitPoints = document.getElementById('hit-points');
+var playerTurn = null;
 
-// declare crawlers
-var mage;
-var mush;
+// ***UI DOM HOOKS*** //
+var topRight = document.getElementById('top-right');
+var btmRight = document.getElementById('btm-right');
+var topLeft = document.getElementById('top-left');
+var btmLeft = document.getElementById('btm-left');
+var hitPoints = document.getElementById('hit-points');
+var rollValue = document.getElementById('roll-value');
+var msgBoard = document.getElementById('message-board');
 
-// helper functions
+// ***HELPER FUNCTIONS*** //
 
-// super complicated game loop logic
-const setLoopInterval = function() {
-    return setInterval(function () {
-        if (dungeonLoopRunning) {
-            dungeonLoop()
+// game loop with exit strategy
+var setLoopInterval = function() {
+    return setInterval( function() {
+        if (dungeonMode) {
+            startDungeonMode();
         } else {
-            clearInterval(loopHandle);
-            startBattle(mush);
+            clearInterval(gameLoopHandle);
+            startBattleMode(crawler.current);
         }
-    }, 60);
+    },60)
 }
 
-// roll die
-const roll = (numSides) => {
-    return Math.ceil(Math.random() * (numSides));
+// roll a die of n sides
+var rollDie = function(n) {
+    return Math.ceil(Math.random() * n);
 }
 
-// draw battle screen stage
-const drawBattleScreen = () => {
-    ctx2.clearRect(0, 0, battleScreen.width, battleScreen.height);
-    ctx2.fillStyle = 'rgba(66,66,66,0.8)';
-    ctx2.strokeRect(10, 10, 812, 396);
-    ctx2.fillRect(10, 10, 812, 396);
+// check if it is the player's turn
+var whoseTurn = function() {
+    if (player.initiative >= crawler.current.initiative) {
+          playerTurn = true;
+    }
 }
 
-// draw participants on battle screen
-const drawParticipants = (crawler) => {
-    // create image objects and assign src -- create Crawler method to return these
-    let playerImg = new Image();
-    playerImg.src = mage.srcLrg;
-    let crawlerImg = new Image();
-    crawlerImg.src = crawler.srcLrg;
-
-    // render on battle screen
-    ctx2.drawImage(playerImg, 50, 50, 64, 64);
-    ctx2.drawImage(crawlerImg, battleScreen.width - 50 - 64, 50, 64, 64);
-}
-
-// draw message on header of battle screen
-const drawBattleHeader = (ctx, text, x, y, color) => {
-    ctx.fillStyle = color;
-    ctx.font = "26px 'Press Start 2P'";
-    ctx.fillText(text, x, y);
-}
-
-//clear battle text 
-const clearBattleText = () => {
-    ctx2.clearRect(150, 100, 200, 50);
-    ctx2.fillStyle = 'rgba(66,66,66,.8)';
-    ctx2.fillRect(150, 100, 200, 50);
-}
-
-// draw attack message
-const drawAttackMsg = (atk) => {
-    drawBattleHeader(ctx2, 'Attack', 350, 50, 'white');
-    drawBattleHeader(ctx2, "Hit for " + atk, 300, 100, 'red');
-}
-
-//  draw attack choices
-const drawAttackChoices = () => {
-    let spellOne = new Image();
-    let spellTwo = new Image();
-    let spellThree = new Image();
-
-    spellOne.src = "../img/throw_icicle_new_128.png";
-    spellTwo.src = "../img/fireball_new_128.png";
-    spellThree.src = "../img/death_channel_128.png";
-
-    ctx2.drawImage(spellOne,160,200,128,128);
-
-    ctx2.drawImage(spellTwo,348,200,128,128);
-
-    ctx2.drawImage(spellThree,348+188,200,128,128);
-
-}
-
-const redrawBattleScreen = (crawler) => {
-    // let msg = (currentPlayer == mage) ? "Roll Attack" : "Enemy Rolls";
-    drawBattleScreen();
-    drawParticipants(crawler);
-}
-
-// function for keypress in battle mode
-// const battleInputHandler = (e,crawler) => {
-//     // need to add logic re: spell slots
-//     if (battleLoopRunning) {
-//         switch(e.keyCode) {
-//             case 49:
-//                 crawler.hp -= mage.rollCantrip();
-//                 break;
-//             case 50:
-//                 crawler.hp -=mage.rollAttack(8);
-//                 mage.spellSlots -= 1
-//                 break;
-//             case 51:
-//                 crawler.hp -=mage.rollAttack(12);
-//                 mage.spellSlots -= 2
-//                 break;
-//         }
-//     }
-// }
-
-// function for keypress in dungeon roaming mode
-const movementInputHandler = (e) => {
-    // console.log(e.keyCode);
+// input handler in dungeon mode
+var movementInputHandler = function(e) {
     // disallow movement when battle screen is active
-    if (dungeonLoopRunning) {
+    if (dungeonMode) {
         switch (true) {
             case (e.keyCode === 87 || e.keyCode === 38):
-                mage.y -= 10;
+                player.y -= 10;
                 break;
             case (e.keyCode === 83 || e.keyCode === 40):
-                mage.y += 10;
+                player.y += 10;
                 break;
             case (e.keyCode === 65 || e.keyCode === 37):
-                mage.x -= 10;
+                player.x -= 10;
                 break;
             case (e.keyCode === 68 || e.keyCode === 39):
-                mage.x += 10;
+                player.x += 10;
                 break;
         }
     }
 }
 
-// function for dungeoneering loop
-const dungeonLoop = () => { 
-    ctx.clearRect(0,0,game.width,game.height);
-    mage.render(ctx);
-    // track info during development/debug -- using innerHTML temporarily
-    topRight.innerHTML = "<h3>x:" + mage.x + "<br>y:" + mage.y + "</h3>";
-    // draw mush if still alive
-    if (mush.hp > 0) {
-        mush.render(ctx) 
-    } else {
-        // I feel like there has to be a better way to do this
-        mush.x = null;
-        mush.y = null;
-        mush.width = 0;
-        mush.height = 0;
+// input Handler battle mode
+var battleInputHandler = function(e) {
+    if (battleMode) {
+        switch(true) {
+            case (e.keyCode === 49):
+                console.log('cantrip')
+                break;
+            case (e.keyCode === 50):
+                console.log('med attack')
+                break;
+            case (e.keyCode === 51):
+                console.log('big attack')
+                break;
+        }
     }
+
+}
+
+
+// ***CRAWLER, HERO PROTOTYPE & GENERATOR*** //
+function Crawler(x, y, src) {
+    this.x = x;
+    this.y = y;
+    this.src = src;
+    this.srcLrg = src.replace('32', '64');
+    this.width = 32;
+    this.height = 32;
+    this.level = 1;
+    this.initiative = 0;
+    this.hp = 8 + Math.round(Math.random() * 3); // randomize starting hp a little
+    this.spellSlots = 3;
+    this.initiative = 0;
+}
+
+// render to a canvas
+Crawler.prototype.render = function(ctx) {
+    var spriteImg = new Image();
+    spriteImg.src = this.src;
+    ctx.drawImage(spriteImg, this.x, this.y, this.width, this.height);
+}
+
+// roll for initiatice
+Crawler.prototype.rollInitiative = function() {
+    this.initiative = rollDie(20);
+}
+
+
+// attack roll - player level x d'n'
+Crawler.prototype.rollAttack = function(n) {
+    return this.level * rollDie(n);
+}
+
+// level up
+Crawler.prototype.levelUp = function() {
+    this.level += 1
+    this.hp += this.level * rollDie(8) + 4;
+    this.spellSlots += Math.round(this.level / 2);
+}
+
+// create hero prototype 
+function Hero (x,y,src) {
+    Crawler.call(this, x, y, src);
+    this.hp = 10 + Math.round(Math.random() * 5);
+}
+
+Hero.prototype = Object.create(Crawler.prototype);
+Hero.prototype.constructor = Hero;
+
+// cantrip roll - player level x d8
+Hero.prototype.rollCantrip = function() {
+    return this.level * rollDie(8)
+}
+
+// func to generate crawlers
+var generateCrawlers = function() {
+    // generate 3 - 6 crawlers
+    var numCrawlers = 2 + Math.ceil(Math.random() * 4);
+    var crawlerSprites = ["../img/plc-shroom-32.png", "../img/plc-deathooze-32.png", "../img/plc-eye-32.png", "../img/plc-snail-32.png"]
+    for (var i = 0; i < numCrawlers; i++) {
+        // random coordinates -- add/substract 32 to account for player start pos
+        var randomX = 32 + Math.floor(Math.random() * parseInt(ctxWidth) - 32);
+        var randomY = 32 + Math.floor(Math.random() * parseInt(ctxHeight) - 32);
+
+        // random sprite from array
+        var randomSprite = crawlerSprites[Math.floor(Math.random() * crawlerSprites.length)];
+        // instantiate random crawler
+        var randomCrawler = new Crawler(randomX, randomY, randomSprite);
+
+        crawlers.push(randomCrawler);
+    }
+}
+
+// ***GAME PLAY & LOGIC*** //
+var initGame = function() {
+    player = new Hero(0, 0, '../img/plc-mage-32.png');
+    generateCrawlers();
+    hitPoints.textContent = player.hp;   
+}
+
+var startDungeonMode = function() {
+    ctx.clearRect(0, 0, ctxWidth, ctxHeight);
+    player.render(ctx);
+    crawlers.forEach( function(crawler) {
+        crawler.render(ctx);
+    })
     detectEncounter();
 }
 
-// function to detect contact with monster -- hard coding in mushroom placeholder for development
-const detectEncounter = () => {
-    if (mage.x < mush.x + mush.width
-        && mage.x + mage.width > mush.x
-        && mage.y < mush.y + mush.height
-        && mage.y + mage.height > mush.y) {
-        console.log('detectEncounter triggered');
-        // trigger encounter screen as soon as i know how
-        ctx.save();
-        dungeonLoopRunning = false;
-        battleLoopRunning = true;
-        startBattle(mush);
-    }
-}
-
-// utility function to test game state on restart
-const restart = () => {
-    ctx2.clearRect(0,0,battleScreen.width,battleScreen.height);
-    ctx.restore();
-    dungeonLoopRunning = true;
-    loopHandle = setLoopInterval();
-}
-
-const startBattle = (crawler) => {
-    drawBattleScreen();
-    drawBattleHeader(ctx2, 'ROLL FOR INITIATIVE',165,50, '#000');
-    drawAttackChoices();
-    drawParticipants(crawler);
-    document.addEventListener('keyup', function(e) {
-        if (e.keyCode === 13) {
-            battle(crawler);
-            hitPoints.textContent = mage.hp;
+var detectEncounter = function() {
+    crawlers.forEach( function(crwlr,i){
+        if ( player.x < crwlr.x + crwlr.width
+            && player.x + player.width > crwlr.x
+            && player.y < crwlr.y + crwlr.height
+            && player.y + player.height > crwlr.y) {
+                console.log('they touchin!')
+                ctx.save();
+                crawler.current = crwlr;
+                crawler.index = i;
+                dungeonMode = false;
+                battleMode = true;
         }
     })
-    
+    // console.log(crawler.current);
 }
 
-const battle = (crawler) => {
-    var currentPlayer = (turn % 2 === 0) ? crawler : mage;
-    var playerInputGiven = false;
-    let atk;
-    if (crawler.hp > 0 && mage.hp > 0 ){
-        console.log(currentPlayer.src.split("/")[(currentPlayer.src.split("/").length - 1)]);
-        if (currentPlayer == crawler) {
-            atk = crawler.rollCantrip();
-            mage.hp -= atk;
-            console.log('crawler hits for ',atk);
-        } else {
-            // console.log(currentPlayer);
-            console.log('player turn');
-            document.addEventListener('keyup', function(e){
-                if (battleLoopRunning && currentPlayer == mage) {
-                    switch (true) {
-                        case (e.keyCode === 49):
-                            console.log('cantrip');
-                            atk = mage.rollCantrip();
-                            redrawBattleScreen(crawler);
-                            drawAttackMsg(atk);
-                            return crawler.hp -= atk;
-                            break;
-                        case (e.keyCode === 50):
-                            console.log('med attack')
-                            atk = mage.rollAttack(8);
-                            redrawBattleScreen(crawler);
-                            drawAttackMsg(atk);
-                            return crawler.hp -= atk;
-                            mage.spellSlots -= 1
-                            break;
-                        case (e.keyCode === 51):
-                            console.log('big attack')
-                            atk = mage.rollAttack(12);
-                            redrawBattleScreen(crawler);
-                            drawAttackMsg(atk);
-                            return crawler.hp -= atk;
-                            mage.spellSlots -= 2
-                        break;
-                    }
-                    playerInputGiven = true;
-                }
-            })
-        }
-        turn++;
+var startBattleMode = function() {
+    console.log('battlemode initiated');
+    msgBoard.textContent = 'ROLL FOR INITIATIVE!';
+    rollValue.textContent = "."
+    setTimeout( function() {
+        rollValue.textContent = ".."
+    },250);
+    setTimeout( function() {
+        rollValue.textContent = "..."
+    },500);
+    player.rollInitiative();
+    crawler.current.rollInitiative();
+    setTimeout( function() {
+        rollValue.textContent = player.initiative;
+    },1500);
+    whoseTurn();
+    setTimeout( function() {
+        msgBoard.textContent = "Crawler rolled a " + crawler.current.initiative;
+    },2000)
+    // !playerTurn ? crawlerAttack() : playerAttack();
+
+}
+
+var crawlerAttack = function() {
+    var atk;
+    var atkSelection = rollDie(20);
+    if (atkSelection >= 0 && atkSelection < 14) {
+        atk = crawler.current.rollAttack(4);
+    } else if (atkSelection >= 14 && atkSelection > 20) {
+        atk = crawler.current.rollAttack(6);
     } else {
-        mage.levelUp()
-        drawBattleHeader(ctx,"Level Up: " + mage.level, 348,50,'goldenrod' );
-        battleLoopRunning = false;
-        restart();
-        turn = 0;
+        atk = crawler.current.rollAttack(10)
     }
+    player.hp -= atk;
+    msgBoard.textContent = "You've been hit for " + atk;
+    hitPoints.textContent = player.hp;
 }
 
-// create Crawler object to populate dungeon
-class Crawler {
-    constructor(x, y, src) {
-        this.x = x;
-        this.y = y;
-        this.src = src;
-        this.srcLrg = src.replace('32','64'); 
-        this.width = 32;
-        this.height = 32;
-        this.level = 1;
-        this.initiative = 0;
-        // randomize starting hp a little
-        this.hp = 8 + Math.round(Math.random() * 3);
-        this.spellSlots = 3;
-    }
-
-    // ctx argument to choose context to render to
-    render(ctx) {
-        let spriteImg = new Image();
-        spriteImg.src = this.src;
-        ctx.drawImage(spriteImg, this.x, this.y, this.width, this.height);
-    }
-
-    // cantrip roll
-    rollCantrip() {
-        return this.level * roll(8)
-    }
-
-    // attack roll
-    rollAttack(numSides) {
-        return this.level * roll(numSides);
-    }
-
-    // level up
-    levelUp() {
-        this.level += 1
-        this.hp += this.level * roll(8) + 4;
-        this.spellSlots += Math.round(this.level / 2);
-    }
-
+var playerAttack = function() {
+    var atk;
+    // if input == 49
+        // cantrip
+    // if input == 50
+        // med atk
+    // if input == 51
+        // big atk
 
 }
 
-// ********************* DOM Stuff *********************//
+var battleHandler = function() {
+    if (player.hp > 0 && crawler.current.hp > 0) {
+        // battle
+    } else if (crawler.current.hp <= 0) {
+        // clear crawler from crawlers arr and crawler object
+        crawlers.splice(crawler.index, 1);
+        crawler.current = null;
+        crawler.index = null;
 
-document.addEventListener("DOMContentLoaded", function() {
-    
-    // create crawlers
-    mage = new Crawler(10, 10,'../img/plc-mage-32.png');
-    mush = new Crawler(50, 50,'../img/plc-shroom-32.png');
+        // restart dungeon mode
 
-    hitPoints.textContent = mage.hp;
-    
-    // for dev purposes
-    btmRight.innerHTML = "<h3>p: " + mage.hp + "  m: " + mush.hp + "</h3>";
-    
-    // set up event listener for movement keypress
+    } else {
+        // gameOver();
+        // initGame();
+    }
+}
+
+
+// *** READY *** //
+document.addEventListener('DOMContentLoaded', function(){
+    initGame();
     document.addEventListener('keydown', movementInputHandler);
-    // document.addEventListener('keydown', battleInputHandler);
-    
-    // start game loop  
-    loopHandle = setLoopInterval();
+    document.addEventListener('keydown', battleInputHandler);
+
+
+
+    gameLoopHandle = setLoopInterval();
 })
+
