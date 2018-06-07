@@ -350,7 +350,7 @@ var crawlerAttack = function() {
         atk = crawler.current.rollAttack(10)
     }
     player.hp -= atk;
-    msgBoard.textContent = "You've been hit for " + atk;
+    animateMsgBoard("You've been hit for " + atk);
     hitPoints.textContent = player.hp;
 
     playerTurn = true;
