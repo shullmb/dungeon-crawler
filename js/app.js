@@ -57,6 +57,75 @@ var whoseTurn = function() {
     }
 }
 
+var updateRollValue = function(value) {
+    rollValue.textContent = value;
+}
+
+var updateMsgBoard = function(msg) {
+    msgBoard.textContent = msg;
+}
+
+var animateRoll = function(roll) {
+    setTimeout(function () {
+        updateRollValue(".");
+    }, 100);
+    setTimeout(function () {
+        updateRollValue("-");
+    }, 200);
+    setTimeout(function () {
+        updateRollValue("--");
+    }, 300);
+    setTimeout(function () {
+        updateRollValue("\\");
+    }, 400);
+    setTimeout(function () {
+        updateRollValue("|");
+    }, 500);
+    setTimeout(function () {
+        updateRollValue("/");
+    }, 600);
+    setTimeout(function () {
+        updateRollValue("--");
+    }, 700);
+    setTimeout(function () {
+        updateRollValue("\\");
+    }, 800);
+    setTimeout(function () {
+        updateRollValue("|");
+    }, 900);
+    setTimeout(function () {
+        updateRollValue("/");
+    }, 1000);
+    setTimeout(function () {
+        updateRollValue("--");
+    }, 1100);
+    setTimeout(function () {
+        updateRollValue(roll);
+    }, 1200);
+}
+
+var animateMsgBoard = function(msg) {
+    updateMsgBoard(".");
+    setTimeout(function () {
+        updateMsgBoard("..");
+    }, 250);
+    setTimeout(function () {
+        updateMsgBoard("...");
+    }, 500);
+    setTimeout(function () {
+        updateMsgBoard(".");
+    }, 750);
+    setTimeout(function () {
+        updateMsgBoard("..");
+    }, 1000);
+    setTimeout(function () {
+        updateMsgBoard("...");
+    }, 1100);
+    setTimeout(function () {
+        updateMsgBoard(msg);
+    }, 1200);
+}
+
 // input handler in dungeon mode
 var movementInputHandler = function(e) {
     // disallow movement when battle screen is active
@@ -247,27 +316,18 @@ var startBattleMode = function() {
     console.log('battlemode initiated');
     var turnMsg;
     msgBoard.textContent = 'ROLL FOR INITIATIVE!';
-    rollValue.textContent = "."
-    setTimeout( function() {
-        rollValue.textContent = ".."
-    },250);
-    setTimeout( function() {
-        rollValue.textContent = "..."
-    },500);
     player.rollInitiative();
     crawler.current.rollInitiative();
-    setTimeout( function() {
-        rollValue.textContent = player.initiative;
-    },1500);
     whoseTurn();
     turnMsg = !playerTurn ? 'Crawler goes first' : 'You attack first'
-    setTimeout( function() {
-        msgBoard.textContent = "Crawler rolled " + crawler.current.initiative;
-    },2000)
+    animateRoll(player.initiative);
+    animateMsgBoard("Crawler rolled " + crawler.current.initiative);
     setTimeout( function() {
         drawBattleScreen();
-        drawBattleHeader(ctxB, turnMsg, 180, 50, '#000');
-    }, 2250)
+        updateRollValue('');
+        updateMsgBoard(turnMsg);
+        drawBattleHeader(ctxB, "FIGHT!", 180, 50,'red');
+    }, 2200)
 
 }
 
