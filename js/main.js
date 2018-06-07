@@ -124,10 +124,6 @@ Crawler.prototype.rollInitiative = function() {
     this.initiative = rollDie(20);
 }
 
-// cantrip roll - player level x d8
-Crawler.prototype.rollCantrip = function() {
-    return this.level * rollDie(8)
-}
 
 // attack roll - player level x d'n'
 Crawler.prototype.rollAttack = function(n) {
@@ -139,6 +135,19 @@ Crawler.prototype.levelUp = function() {
     this.level += 1
     this.hp += this.level * rollDie(8) + 4;
     this.spellSlots += Math.round(this.level / 2);
+}
+
+function Hero (x,y,src) {
+    Crawler.call(this, x, y, src);
+    
+}
+
+Hero.prototype = Object.create(Crawler.prototype);
+Hero.prototype.constructor = Hero;
+
+// cantrip roll - player level x d8
+Hero.prototype.rollCantrip = function() {
+    return this.level * rollDie(8)
 }
 
 // func to generate crawlers
@@ -162,7 +171,7 @@ var generateCrawlers = function() {
 
 // ***GAME PLAY & LOGIC*** //
 var initGame = function() {
-    player = new Crawler(0, 0, '../img/plc-mage-32.png');
+    player = new Hero(0, 0, '../img/plc-mage-32.png');
     generateCrawlers();
     hitPoints.textContent = player.hp;   
 }
