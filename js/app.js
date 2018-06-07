@@ -1,8 +1,8 @@
 // ***CANVAS SETUP*** //
 var dungeon = document.getElementById('dungeon'); //rename canvas id dungeon when implemented
 var battleScreen = document.getElementById('battle-screen')
-var ctx = dungeon.getContext('2d');
-var ctx2 = battleScreen.getContext('2d');
+var ctxD = dungeon.getContext('2d');
+var ctxB = battleScreen.getContext('2d');
 var ctxWidth = '832';
 var ctxHeight = '416';
 
@@ -91,7 +91,7 @@ var battleInputHandler = function(e) {
             case (e.keyCode === 51):
                 console.log('big attack')
                 break;
-            case(e.keyCode === 75 && e.keyCode === 17):
+            case(e.keyCode === 75): //kill the crawler
                 crawler.current.hp = 0;
                 break;
         }
@@ -103,10 +103,10 @@ var battleInputHandler = function(e) {
 
 var drawBattleScreen = function() {
     // background
-    ctx2.clearRect(0, 0, battleScreen.width, battleScreen.height);
-    ctx2.fillStyle = 'rgba(66,66,66,0.8)';
-    ctx2.strokeRect(10, 10, 812, 396);
-    ctx2.fillRect(10, 10, 812, 396);
+    ctxB.clearRect(0, 0, battleScreen.width, battleScreen.height);
+    ctxB.fillStyle = 'rgba(66,66,66,0.8)';
+    ctxB.strokeRect(10, 10, 812, 396);
+    ctxB.fillRect(10, 10, 812, 396);
     
     // render hero + crawler large
     var pImg = new Image();
@@ -114,8 +114,14 @@ var drawBattleScreen = function() {
     pImg.src = player.srcLrg;
     cImg.src = crawler.current.srcLrg;
 
-    ctx2.drawImage(pImg, 50, 50, 64, 64);
-    ctx2.drawImage(cImg, battleScreen.width - 50 - 64, 50, 64, 64);
+    ctxB.drawImage(pImg, 50, 50, 64, 64);
+    ctxB.drawImage(cImg, battleScreen.width - 50 - 64, 50, 64, 64);
+}
+
+var drawBattleHeader = function(ctx, text, x, y, color) {
+    ctx.fillStyle = color;
+    ctx.font = "26px 'Press Start 2P'";
+    ctx.fillText(text, x, y);
 }
 
 
@@ -200,10 +206,10 @@ var initGame = function() {
 }
 
 var startDungeonMode = function() {
-    ctx.clearRect(0, 0, ctxWidth, ctxHeight);
-    player.render(ctx);
+    ctxD.clearRect(0, 0, ctxWidth, ctxHeight);
+    player.render(ctxD);
     crawlers.forEach( function(crawler) {
-        crawler.render(ctx);
+        crawler.render(ctxD);
     })
     detectEncounter();
 }
@@ -215,7 +221,7 @@ var detectEncounter = function() {
             && player.y < crwlr.y + crwlr.height
             && player.y + player.height > crwlr.y) {
                 console.log('they touchin!')
-                ctx.save();
+                ctxD.save();
                 crawler.current = crwlr;
                 crawler.index = i;
                 dungeonMode = false;
