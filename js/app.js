@@ -152,7 +152,6 @@ Crawler.prototype.rollInitiative = function() {
     this.initiative = rollDie(20);
 }
 
-
 // attack roll - player level x d'n'
 Crawler.prototype.rollAttack = function(n) {
     return this.level * rollDie(n);
@@ -185,9 +184,16 @@ var generateCrawlers = function() {
     var numCrawlers = 2 + Math.ceil(Math.random() * 4);
     var crawlerSprites = ["../img/plc-shroom-32.png", "../img/plc-deathooze-32.png", "../img/plc-eye-32.png", "../img/plc-snail-32.png"]
     for (var i = 0; i < numCrawlers; i++) {
-        // random coordinates -- add/substract 32 to account for player start pos
-        var randomX = 32 + Math.floor(Math.random() * parseInt(ctxWidth) - 32);
-        var randomY = 32 + Math.floor(Math.random() * parseInt(ctxHeight) - 32);
+        // random coordinates 
+        var randomX = Math.floor(Math.random() * parseInt(ctxWidth));
+        var randomY = Math.floor(Math.random() * parseInt(ctxHeight));
+
+        // pad for hero starting position and dungeon boundaries
+        randomX = randomX < 64 ? randomX + 64 : randomX;
+        randomX = randomX > parseInt(ctxWidth) ? randomX - 64 : randomX;
+        randomY = randomY < 64 ? randomY + 64 : randomY;
+        randomY = randomY > parseInt(ctxHeight) ? randomY - 64 : randomY;
+
 
         // random sprite from array
         var randomSprite = crawlerSprites[Math.floor(Math.random() * crawlerSprites.length)];
