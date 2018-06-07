@@ -3,8 +3,8 @@ var dungeon = document.getElementById('dungeon'); //rename canvas id dungeon whe
 var battleScreen = document.getElementById('battle-screen')
 var ctxD = dungeon.getContext('2d');
 var ctxB = battleScreen.getContext('2d');
-var ctxWidth = '832';
-var ctxHeight = '416';
+var ctxWidth = 832;
+var ctxHeight = 416;
 
 dungeon.width = ctxWidth;
 dungeon.height = ctxHeight;
@@ -15,6 +15,7 @@ battleScreen.height = ctxHeight;
 var gameLoopHandle;
 var dungeonMode = true;
 var battleMode = false;
+var gameOver = false;
 
 var player;
 var crawlers = [];
@@ -280,10 +281,10 @@ var initGame = function() {
     hitPoints.textContent = player.hp;   
 }
 
-var restart = function() {
-    ctxB.clearRect(0,0,battleScreen.width, battleScreen.height);
-    ctxD.restore();
-    gameLoopHandle = setLoopInterval();
+var endGame = function() {
+    // show game over screen
+
+    // press return to start new game
 }
 
 var startDungeonMode = function() {
@@ -293,6 +294,12 @@ var startDungeonMode = function() {
         crawler.render(ctxD);
     })
     detectEncounter();
+}
+
+var returnToDungeon = function() {
+    ctxB.clearRect(0,0,battleScreen.width, battleScreen.height);
+    ctxD.restore();
+    gameLoopHandle = setLoopInterval();
 }
 
 var detectEncounter = function() {
@@ -307,6 +314,7 @@ var detectEncounter = function() {
                 crawler.index = i;
                 dungeonMode = false;
                 battleMode = true;
+                drawBattleHeader(ctxB, "CRAWLER ENCOUNTERED", 190, 50, 'white');
         }
     })
     // console.log(crawler.current);
@@ -319,14 +327,14 @@ var startBattleMode = function() {
     player.rollInitiative();
     crawler.current.rollInitiative();
     whoseTurn();
-    turnMsg = !playerTurn ? 'Crawler goes first' : 'You attack first'
+    turnMsg = !playerTurn ? 'Crawler hits first' : 'You attack first'
     animateRoll(player.initiative);
     animateMsgBoard("Crawler rolled " + crawler.current.initiative);
     setTimeout( function() {
         drawBattleScreen();
         updateRollValue('');
         updateMsgBoard(turnMsg);
-        drawBattleHeader(ctxB, "FIGHT!", 180, 50,'red');
+        drawBattleHeader(ctxB, "FIGHT!", 330, 50,'red');
     }, 2200)
 
 }
@@ -344,22 +352,25 @@ var crawlerAttack = function() {
     player.hp -= atk;
     msgBoard.textContent = "You've been hit for " + atk;
     hitPoints.textContent = player.hp;
+
+    playerTurn = true;
 }
 
-var playerAttack = function() {
-    var atk;
-    // if input == 49
-        // cantrip
-    // if input == 50
-        // med atk
-    // if input == 51
-        // big atk
+var playerAttack = function(atk) {
+    crawler.current.hp -= atk;
 
+
+    playerTurn = false;
 }
 
 var battleHandler = function() {
     if (player.hp > 0 && crawler.current.hp > 0) {
-        // battle
+        if (!playerTurn) {
+            crawlerAttack();
+        } else {
+            playerAttack();
+        }
+
     } else if (crawler.current.hp <= 0) {
         // clear crawler from crawlers arr and crawler object
         crawlers.splice(crawler.index, 1);
@@ -367,10 +378,10 @@ var battleHandler = function() {
         crawler.index = null;
 
         // restart dungeon mode
-
+        returnToDungeon();
     } else {
-        // gameOver();
-        // initGame();
+        // gameOver = true;
+        // endGame();
     }
 }
 
