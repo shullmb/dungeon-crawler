@@ -293,18 +293,21 @@ var drawBattleHeader = function(ctx, text, x, y, color) {
 
 // display spell choices
 
-var drawAttackChoices = () => {
-    let spellOne = new Image();
-    let spellTwo = new Image();
-    let spellThree = new Image();
+var drawAttackChoices = function() {
+    var spellOne = new Image();
+    var spellTwo = new Image();
+    var spellThree = new Image();
+    var spellFour = new Image();
 
     spellOne.src = "../img/throw_icicle_new_128.png";
     spellTwo.src = "../img/fireball_new_128.png";
     spellThree.src = "../img/death_channel_128.png";
+    spellFour.src = "../img/cure_poison_new_128.png";
 
-    ctxB.drawImage(spellOne, 160, 200, 128, 128);
-    ctxB.drawImage(spellTwo, 348, 200, 128, 128);
-    ctxB.drawImage(spellThree, 348 + 188, 200, 128, 128);
+    ctxB.drawImage(spellOne, 70, 200, 128, 128);
+    ctxB.drawImage(spellTwo, 258, 200, 128, 128);
+    ctxB.drawImage(spellThree, 258 + 128 + 60, 200, 128, 128);
+    ctxB.drawImage(spellFour, 258 +128+60+128+60, 200, 128, 128);
 
 }
 
@@ -431,7 +434,7 @@ var restartGame = function() {
 
 var startDungeonMode = function() {
     ctxD.clearRect(0, 0, ctxWidth, ctxHeight);
-    // drawGloom();
+    drawGloom();
     player.render(ctxD);
     crawlers.forEach( function(crawler) {
         crawler.render(ctxD);
