@@ -28,8 +28,6 @@ var player;
 var crawlers = [];
 var crawler = {current: null, index: null};
 
-
-
 var playerTurn = false;
 
 // ***UI DOM HOOKS*** //
@@ -187,7 +185,6 @@ var battleInputHandler = function(e) {
             case (e.keyCode === 48):
                 if (player.healSlots > 0) {
                     playerHeal();
-                    updateMsgBoard("You feel stronger...");
                 } else {
                     updateMsgBoard("Out of heals! Hit 'em hard!");
                 }
@@ -220,10 +217,9 @@ var battleInputHandler = function(e) {
                 playerAttack(atk);
                 break;
             default:
-                updateMsgBoard('Press 1,2, or 3 key to attack');
+                updateMsgBoard('Press 1,2,3 or 0...');
         }
     }
-
 }
 
 // smash that return key and return to the dungeon of doom
@@ -243,7 +239,7 @@ var drawGloom = function() {
     lantern.fillStyle = 'rgba(255,255,255,0)'; // 
     lantern.fillRect(0, 0, ctxWidth, ctxHeight);
     
-    // create canvas for mask here -- doesn't seem to work declared externally from thsi function
+    // create canvas for mask here -- doesn't seem to work declared externally from this function
     var light = document.createElement('canvas');
     light.width = ctxWidth;
     light.height = ctxHeight;
@@ -255,8 +251,7 @@ var drawGloom = function() {
     gloom.globalCompositeOperation = 'destination-out';
     gloom.filter = "blur(32px)";
     
-    var lanternRadius = 48 + Math.floor(Math.random() * 16); //causing artifacts
-    // var lanternRadius = 64;
+    var lanternRadius = 48 + Math.floor(Math.random() * 16);
 
     // position lantern centered over player
     gloom.arc(player.x + 16, player.y + 16, lanternRadius, 0, 2 * Math.PI);
@@ -292,7 +287,6 @@ var drawBattleHeader = function(ctx, text, x, y, color) {
 }
 
 // display spell choices
-
 var drawAttackChoices = function() {
     var spellOne = new Image();
     var spellTwo = new Image();
@@ -310,7 +304,6 @@ var drawAttackChoices = function() {
     ctxB.drawImage(spellFour, 258 +128+60+128+60, 200, 128, 128);
 
 }
-
 
 // ***CRAWLER, HERO PROTOTYPE & GENERATOR*** //
 function Crawler(x, y, src) {
@@ -404,7 +397,7 @@ var initGame = function() {
     gameOver = false;
     player = new Hero(0, 0, '../img/plc-mage-32-r.png');
     generateCrawlers(player.level);
-    hitPoints.textContent = player.hp;   
+    updateStats();   
 }
 
 var endGame = function(status) {
@@ -434,7 +427,7 @@ var restartGame = function() {
 
 var startDungeonMode = function() {
     ctxD.clearRect(0, 0, ctxWidth, ctxHeight);
-    drawGloom();
+    // drawGloom();
     player.render(ctxD);
     crawlers.forEach( function(crawler) {
         crawler.render(ctxD);
@@ -458,7 +451,6 @@ var detectEncounter = function() {
             && player.x + player.width > crwlr.x
             && player.y < crwlr.y + crwlr.height
             && player.y + player.height > crwlr.y) {
-                console.log('they touchin!')
                 ctxD.save();
                 crawler.current = crwlr;
                 crawler.index = i;
@@ -467,11 +459,9 @@ var detectEncounter = function() {
                 drawBattleHeader(ctxB, "CRAWLER ENCOUNTERED", 190, 50, 'red');
         }
     })}
-    // console.log(crawler.current);
 }
 
 var startBattleMode = function() {
-    console.log('battlemode initiated');
     var turnMsg;
     updateMsgBoard('ROLL FOR INITIATIVE!');
     player.rollInitiative();
@@ -489,10 +479,13 @@ var startBattleMode = function() {
         drawBattleHeader(ctxB, "FIGHT!", 330, 50,'red');
         setTimeout(battleHandler, 1000);
     }, 2200)
-
+    
 }
 
 var crawlerAttack = function() {
+    drawBattleScreen();
+    drawBattleParticipants();
+    drawBattleHeader(ctxB, "CRAWLER ATTACKS!", 212, 50,'red');
     var atk;
     var atkSelection = rollDie(20);
     if (atkSelection >= 0 && atkSelection < 14) {
@@ -503,20 +496,26 @@ var crawlerAttack = function() {
         atk = crawler.current.rollAttack(10)
     }
     player.hp -= atk;
-    console.log('crawler', atk);
     updateMsgBoard("You've been hit for " + atk);
     playerTurn = true;
     updateStats();
-    setTimeout(battleHandler,1500);
+    setTimeout( function() {
+        battleHandler()
+        drawBattleScreen();
+        drawBattleParticipants();
+        drawBattleHeader(ctxB, "FIGHT!", 330, 50, 'red')
+        drawAttackChoices();
+    },1500);
 }
 
 var playerAttack = function(atk) {
-    animateRoll(atk);
     crawler.current.hp -= atk;
-    updateMsgBoard("Crawler is hit for " + atk);
+    animateRoll(atk);
+    animateMsgBoard("Crawler is hit for " + atk);
     playerTurn = false;
     if (crawler.current.hp > 0 && crawler.current !== null) {
         setTimeout( function() {
+
             crawlerAttack();
         }, 2000);
     } else {
@@ -527,6 +526,7 @@ var playerAttack = function(atk) {
 var playerHeal = function() {
     var healRoll = player.level * (2 * rollDie(4)) + 2;
     animateRoll(healRoll);
+    animateMsgBoard("You feel stronger...");
     player.hp+= healRoll;
     player.healSlots--;
     playerTurn = false;
@@ -549,10 +549,10 @@ var checkForWin = function() {
 var battleHandler = function() {
     if (player.hp > 0 && crawler.current.hp > 0) {
         if (!playerTurn) {
-            setTimeout(crawlerAttack, 2000); // DEBUG THIS
+            setTimeout(crawlerAttack, 2000);
         } else {
             drawAttackChoices();
-            updateMsgBoard('Choose your attack!');
+            updateMsgBoard('Choose your action!');
         }
     } else if (crawler.current.hp <= 0 && crawlers.length >= 1) {
         player.levelUp();
@@ -561,10 +561,8 @@ var battleHandler = function() {
         destroyCrawler();
         // check for win and restart dungeon mode if crawlers left
         checkForWin();
-        // returnToDungeon();
     } else if (player.hp <= 0) {
         endGame();
-        console.log('you lose')
     }
     updateStats();
 }
