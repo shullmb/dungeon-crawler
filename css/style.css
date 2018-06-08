@@ -7,6 +7,10 @@
      font-family: 'Press Start 2P', 'Courier New', Courier, monospace;
  }
 
+header {
+    text-align: center;
+}
+
 h1 {
     color: #daa520;
 }

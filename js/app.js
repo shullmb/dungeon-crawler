@@ -153,14 +153,14 @@ var movementInputHandler = function(e) {
                 player.x -= 5;
                 break;
             case (e.keyCode === 68 || e.keyCode === 39):
-                player.src = "../img/plc-mage-32.png";
+                player.src = "../img/plc-mage-32-r.png";
                 player.x += 5;
                 break;
         }
     }
 }
 
-// input Handler battle mode
+// input Handler battle mode -- playerAttack repeated to avoid 'undefined'
 var battleInputHandler = function(e) {
     if (battleMode && playerTurn) {
         var atk;
@@ -209,10 +209,13 @@ var drawGloom = function() {
     gloom.fillStyle = "rgba(0,0,0,0.9)";
     gloom.fillRect(0, 0, ctxWidth, ctxHeight);
     gloom.globalCompositeOperation = 'destination-out';
-    
-    // position lantern centered over player
     gloom.filter = "blur(32px)";
-    gloom.arc(player.x + 16, player.y + 16, 64, 0, 2 * Math.PI);
+    
+    // var lanternRadius = 32 + Math.floor(Math.random() *32); //causing artifacts
+    var lanternRadius = 64;
+
+    // position lantern centered over player
+    gloom.arc(player.x + 16, player.y + 16, lanternRadius, 0, 2 * Math.PI);
     gloom.fill();
 
     lantern.drawImage(light, 0, 0);
@@ -237,10 +240,28 @@ var drawBattleParticipants = function() {
     ctxB.drawImage(cImg, battleScreen.width - 50 - 64, 50, 64, 64);
 }
 
+// render message to a canvas
 var drawBattleHeader = function(ctx, text, x, y, color) {
     ctx.fillStyle = color;
     ctx.font = "26px 'Press Start 2P'";
     ctx.fillText(text, x, y);
+}
+
+// display spell choices
+
+var drawAttackChoices = () => {
+    let spellOne = new Image();
+    let spellTwo = new Image();
+    let spellThree = new Image();
+
+    spellOne.src = "../img/throw_icicle_new_128.png";
+    spellTwo.src = "../img/fireball_new_128.png";
+    spellThree.src = "../img/death_channel_128.png";
+
+    ctxB.drawImage(spellOne, 160, 200, 128, 128);
+    ctxB.drawImage(spellTwo, 348, 200, 128, 128);
+    ctxB.drawImage(spellThree, 348 + 188, 200, 128, 128);
+
 }
 
 
@@ -298,9 +319,9 @@ Hero.prototype.rollCantrip = function() {
 }
 
 // func to generate crawlers
-var generateCrawlers = function() {
+var generateCrawlers = function(limitLessTwo) {
     // generate 3 - 6 crawlers
-    var numCrawlers = 2 + Math.ceil(Math.random() * 4);
+    var numCrawlers = 2 + Math.ceil(Math.random() * limitLessTwo);
     var crawlerSprites = ["../img/plc-shroom-32.png", "../img/plc-deathooze-32.png", "../img/plc-eye-32.png", "../img/plc-snail-32.png"]
     for (var i = 0; i < numCrawlers; i++) {
         // random coordinates 
@@ -326,8 +347,8 @@ var generateCrawlers = function() {
 
 // ***GAME PLAY & LOGIC*** //
 var initGame = function() {
-    player = new Hero(0, 0, '../img/plc-mage-32.png');
-    generateCrawlers();
+    player = new Hero(0, 0, '../img/plc-mage-32-r.png');
+    generateCrawlers(1);
     hitPoints.textContent = player.hp;   
 }
 
@@ -335,12 +356,13 @@ var endGame = function(status) {
     
     // status == win => show victory screen
     drawBattleScreen();
+    var statusScreen = new Image(832,416);
     if (status === 'win') {
-        drawBattleHeader(ctxB,"YOU WON!",330,208,'blue');
+        statusScreen.src = "../img/winscreen.png";
     } else {
-        drawBattleHeader(ctxB,"Wah wah",330,208,'red');
-
+        statusScreen.src = "../img/gameover.png";
     }
+    ctxB.drawImage(statusScreen,0,0);
     // status == lose => show game over screen
     // press return to start new game
 }
@@ -447,6 +469,7 @@ var battleHandler = function() {
         if (!playerTurn) {
             setTimeout(crawlerAttack, 2000); // DEBUG THIS
         } else {
+            drawAttackChoices();
             updateMsgBoard('Choose your attack!');
         }
     } else if (crawler.current.hp <= 0 && crawlers.length >= 1) {
