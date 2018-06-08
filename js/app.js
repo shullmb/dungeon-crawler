@@ -36,7 +36,11 @@ var playerTurn = false;
 var topRight = document.getElementById('top-right');
 var btmRight = document.getElementById('btm-right');
 var topLeft = document.getElementById('top-left');
+var topMid = document.getElementById('top-mid');
 var btmLeft = document.getElementById('btm-left');
+var level = document.getElementById('level');
+var spells = document.getElementById('spells');
+var heals = document.getElementById('heals');
 var hitPoints = document.getElementById('hit-points');
 var rollValue = document.getElementById('roll-value');
 var msgBoard = document.getElementById('message-board');
@@ -67,14 +71,26 @@ var whoseTurn = function() {
     }
 }
 
+// update player stats
+var updateStats = function() {
+    level.textContent = player.level;
+    spells.textContent = player.spellSlots;
+    heals.textContent = player.healSlots;
+    hitPoints.textContent = player.hp;
+
+}
+
+// updates btm-left to show player roll
 var updateRollValue = function(value) {
     rollValue.textContent = value;
 }
 
+// updates btm-right to display message
 var updateMsgBoard = function(msg) {
     msgBoard.textContent = msg;
 }
 
+// whirly fun when rolling
 var animateRoll = function(roll) {
     setTimeout(function () {
         updateRollValue(".");
@@ -114,6 +130,7 @@ var animateRoll = function(roll) {
     }, 1200);
 }
 
+// animation used during planned delay in gameplay
 var animateMsgBoard = function(msg) {
     updateMsgBoard(".");
     setTimeout(function () {
@@ -192,6 +209,7 @@ var battleInputHandler = function(e) {
 
 }
 
+// smash that return key and return to the dungeon of doom
 var gameOverInputHandler = function(e) {
     if (gameOver) {
         if (e.keyCode === 13) {
@@ -285,7 +303,6 @@ function Crawler(x, y, src) {
     this.level = 1;
     this.initiative = 0;
     this.hp = 8 + Math.round(Math.random() * 3); // randomize starting hp a little
-    this.spellSlots = 3;
     this.initiative = 0;
 }
 
@@ -310,13 +327,14 @@ Crawler.prototype.rollAttack = function(n) {
 Crawler.prototype.levelUp = function() {
     this.level += 1
     this.hp += this.level * rollDie(8) + 4;
-    this.spellSlots += Math.round(this.level / 2);
 }
 
 // create hero prototype 
 function Hero (x,y,src) {
     Crawler.call(this, x, y, src);
     this.hp = 15 + Math.round(Math.random() * 5);
+    this.spellSlots = 3;
+    this.healSlots = 1;
 }
 
 Hero.prototype = Object.create(Crawler.prototype);
@@ -325,6 +343,13 @@ Hero.prototype.constructor = Hero;
 // cantrip roll - player level x d8
 Hero.prototype.rollCantrip = function() {
     return this.level * rollDie(8)
+}
+
+// hero extras on the level up
+Hero.prototype.levelUp = function() {
+    Crawler.prototype.levelUp.call(this);
+    this.spellSlots += Math.round(this.level / 2);
+    this.healSlots++;
 }
 
 // func to generate crawlers
@@ -460,7 +485,6 @@ var crawlerAttack = function() {
     player.hp -= atk;
     console.log('crawler', atk);
     updateMsgBoard("You've been hit for " + atk);
-    hitPoints.textContent = player.hp;
     playerTurn = true;
     setTimeout(battleHandler,2000);
 }
@@ -476,6 +500,11 @@ var playerAttack = function(atk) {
     } else {
         battleHandler();
     }
+}
+
+var playerHeal = function() {
+    player.hp+= player.level * 2 * rollDie(4);
+    player.healSlots--;
 }
 
 var destroyCrawler = function () {

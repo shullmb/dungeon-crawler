@@ -4,6 +4,7 @@
      background-color: #000;
      background-image: url('../img/background.png');
      background-size: cover;
+     background-attachment: fixed;
      font-family: 'Press Start 2P', 'Courier New', Courier, monospace;
  }
 
@@ -33,14 +34,15 @@ h2,h3 {
      grid-gap: 1em;
      grid-template-rows: .15fr .7fr .15fr;
      grid-template-columns: .25fr .5fr .25fr;
-     grid-template-areas: "top-left top-left top-right"
+     grid-template-areas: "top-left top-mid top-right"
                           "game game game"
                           "btm-left btm-right btm-right";
 
  }
 
-#top-left, #top-right, #btm-left, #btm-right {
+#top-left, #top-mid, #top-right, #btm-left, #btm-right {
     background: #2c2c2c;
+    background-image: url('../img/score_bg.png');
     display: flex;
     justify-content: center;
     align-items: center;
@@ -48,6 +50,10 @@ h2,h3 {
 
 #top-left {
     grid-area: top-left;
+}
+
+#top-mid {
+    grid-area: top-mid;
 }
 
 #top-right {
