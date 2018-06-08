@@ -19,6 +19,7 @@ darkness.height = ctxHeight;
 
 // ***GLOBAL VARIABLES*** //
 var gameLoopHandle;
+var crawlerAttackHandle;
 var dungeonMode = true;
 var battleMode = false;
 var gameOver = false;
@@ -191,6 +192,14 @@ var battleInputHandler = function(e) {
 
 }
 
+var gameOverInputHandler = function(e) {
+    if (gameOver) {
+        if (e.keyCode === 13) {
+            restartGame();
+        }
+    }
+}
+
 // ***CANVAS HELPERS*** //
 
 // shroud of darkness -- help from stack overflow https://stackoverflow.com/questions/6271419/how-to-fill-the-opposite-shape-on-canvas
@@ -347,15 +356,14 @@ var generateCrawlers = function(limitLessTwo) {
 
 // ***GAME PLAY & LOGIC*** //
 var initGame = function() {
+    gameOver = false;
     player = new Hero(0, 0, '../img/plc-mage-32-r.png');
     generateCrawlers(player.level);
     hitPoints.textContent = player.hp;   
 }
 
 var endGame = function(status) {
-    
-    // status == win => show victory screen
-    drawBattleScreen();
+    gameOver = true;
     var statusScreen = new Image(832,416);
     if (status === 'win') {
         statusScreen.src = "../img/winscreen.png";
@@ -363,8 +371,20 @@ var endGame = function(status) {
         statusScreen.src = "../img/gameover.png";
     }
     ctxB.drawImage(statusScreen,0,0);
-    // status == lose => show game over screen
-    // press return to start new game
+    animateMsgBoard('Press return to play again');
+}
+
+var restartGame = function() {
+    player = null;
+    dungeonMode = true;
+    battleMode = false;
+    crawlers.length = 0;
+    destroyCrawler();
+    ctxD.clearRect(0,0,ctxWidth,ctxHeight);
+    ctxB.clearRect(0,0,ctxWidth,ctxHeight);
+    updateMsgBoard();
+    initGame();
+    gameLoopHandle = setLoopInterval();
 }
 
 var startDungeonMode = function() {
@@ -457,11 +477,9 @@ var playerAttack = function(atk) {
     }
 }
 
-var destroyCrawler = function() {
-    crawlers.splice(crawler.index, 1);
+var destroyCrawler = function () {
     crawler.current = null;
     crawler.index = null;
-    // returnToDungeon();
 }
 
 var checkForWin = function() {
@@ -483,12 +501,12 @@ var battleHandler = function() {
     } else if (crawler.current.hp <= 0 && crawlers.length >= 1) {
         player.levelUp();
         // clear crawler from crawlers arr and crawler object
+        crawlers.splice(crawler.index, 1);
         destroyCrawler();
         // check for win and restart dungeon mode if crawlers left
         checkForWin();
         // returnToDungeon();
     } else if (player.hp <= 0) {
-        // gameOver = true;
         endGame();
         console.log('you lose')
     }
@@ -500,6 +518,7 @@ document.addEventListener('DOMContentLoaded', function(){
     initGame();
     document.addEventListener('keydown', movementInputHandler);
     document.addEventListener('keydown', battleInputHandler);
+    document.addEventListener('keydown', gameOverInputHandler);
     
     
 
