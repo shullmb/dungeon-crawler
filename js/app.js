@@ -168,21 +168,25 @@ var battleInputHandler = function(e) {
             case (e.keyCode === 49):
                 console.log('cantrip')
                 atk = player.rollCantrip();
+                playerAttack(atk);
                 break;
             case (e.keyCode === 50):
                 console.log('med attack')
                 atk = player.rollAttack(10);
+                playerAttack(atk);
                 break;
             case (e.keyCode === 51):
                 console.log('big attack')
                 atk = player.rollAttack(12);
+                playerAttack(atk);
                 break;
             case(e.keyCode === 75): //kill the crawler
                 atk = 100 * player.rollAttack(100);
+                playerAttack(atk);
                 break;
+            default:
+                updateMsgBoard('Press 1,2, or 3 key to attack');
         }
-        playerAttack(atk);
-        setTimeout(crawlerAttack, 2000);
     }
 
 }
@@ -328,10 +332,14 @@ var initGame = function() {
 }
 
 var endGame = function(status) {
+    
     // status == win => show victory screen
+    drawBattleScreen();
     if (status === 'win') {
-        drawBattleScreen();
-        drawBattleHeader(ctxB,"YOU WON!",330,408,'blue');
+        drawBattleHeader(ctxB,"YOU WON!",330,208,'blue');
+    } else {
+        drawBattleHeader(ctxB,"Wah wah",330,208,'red');
+
     }
     // status == lose => show game over screen
     // press return to start new game
@@ -406,9 +414,9 @@ var crawlerAttack = function() {
         atk = crawler.current.rollAttack(10)
     }
     player.hp -= atk;
+    console.log('crawler', atk);
     updateMsgBoard("You've been hit for " + atk);
     hitPoints.textContent = player.hp;
-
     playerTurn = true;
     battleHandler();
 }
@@ -418,7 +426,13 @@ var playerAttack = function(atk) {
 
     animateMsgBoard("Crawler is hit for " + atk);
     playerTurn = false;
-    battleHandler();
+    if (crawler.current.hp > 0 && crawler.current !== null) {
+        setTimeout( function() {
+            crawlerAttack();
+        }, 2000);
+    } else {
+        battleHandler();
+    }
 }
 
 var destroyCrawler = function() {
@@ -429,26 +443,25 @@ var destroyCrawler = function() {
 }
 
 var battleHandler = function() {
-    if (player.hp > 0 && crawler.current.hp > 0 && crawler.current != null) {
-        setTimeout(function(){        
-            if (!playerTurn) {
-                crawlerAttack(); // DEBUG THIS
-            } else {
-                animateMsgBoard('Choose your attack!');
-            }
-        },2000);
-    } else if (crawler.current.hp <= 0 && crawlers.length !== 0) {
+    if (player.hp > 0 && crawler.current.hp > 0) {
+        if (!playerTurn) {
+            setTimeout(crawlerAttack, 2000); // DEBUG THIS
+        } else {
+            updateMsgBoard('Choose your attack!');
+        }
+    } else if (crawler.current.hp <= 0 && crawlers.length >= 1) {
         player.levelUp();
         // clear crawler from crawlers arr and crawler object
         destroyCrawler();
         // restart dungeon mode
         returnToDungeon();
-    } else {
+    } else if (player.hp <= 0) {
         // gameOver = true;
         if (crawlers.length == 0) {
             endGame('win');
         } else {
-            // endGame(lose);
+            endGame();
+            console.log('you lose')
         }
     }
 }
