@@ -327,19 +327,19 @@ var generateCrawlers = function(limitLessTwo) {
         // random coordinates 
         var x = Math.floor(Math.random() * ctxWidth);
         var y = Math.floor(Math.random() * ctxHeight);
-        // pad for hero starting position and dungeon boundaries
-
-        console.log(i,x,y,'before',ctxWidth,ctxHeight);
-        var randomX = (x < 64) ? x + 64 : x;
-        randomX = (randomX > ctxWidth - 32) ? randomX - 64 : randomX;
-        var randomY = (y < 64) ? y + 64 : y;
-        randomY = (randomY > ctxHeight - 32) ? randomY - 64 : randomY;
-        console.log(i, randomX, randomY, 'after', ctxWidth, ctxHeight);
+        
+        // pad for hero starting position and dungeon boundaries        
+        if ( x < 64 && y < 64) {
+            x = (x < 64) ? x + 64 : x;
+            y = (y < 64) ? y + 64 : y;
+        }
+        x = ( x > ctxWidth - 32 ) ? x - 64 : x;
+        y = ( y > ctxHeight - 32 ) ? y - 64 : y;
         
         // random sprite from array
         var randomSprite = crawlerSprites[Math.floor(Math.random() * crawlerSprites.length)];
         // instantiate random crawler
-        var randomCrawler = new Crawler(randomX, randomY, randomSprite);
+        var randomCrawler = new Crawler(x, y, randomSprite);
 
         crawlers.push(randomCrawler);
     }
@@ -348,7 +348,7 @@ var generateCrawlers = function(limitLessTwo) {
 // ***GAME PLAY & LOGIC*** //
 var initGame = function() {
     player = new Hero(0, 0, '../img/plc-mage-32-r.png');
-    generateCrawlers(6);
+    generateCrawlers(player.level);
     hitPoints.textContent = player.hp;   
 }
 
@@ -397,7 +397,7 @@ var detectEncounter = function() {
                 crawler.index = i;
                 dungeonMode = false;
                 battleMode = true;
-                drawBattleHeader(ctxB, "CRAWLER ENCOUNTERED", 190, 50, 'white');
+                drawBattleHeader(ctxB, "CRAWLER ENCOUNTERED", 190, 50, 'red');
         }
     })}
     // console.log(crawler.current);
