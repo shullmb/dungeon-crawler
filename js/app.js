@@ -77,6 +77,7 @@ var updateStats = function() {
     spells.textContent = player.spellSlots;
     heals.textContent = player.healSlots;
     hitPoints.textContent = player.hp;
+    rollValue.textContent = '';
 
 }
 
@@ -183,20 +184,36 @@ var battleInputHandler = function(e) {
     if (battleMode && playerTurn) {
         var atk;
         switch(true) {
+            case (e.keyCode === 48):
+                if (player.healSlots > 0) {
+                    playerHeal();
+                    updateMsgBoard("You feel stronger...");
+                } else {
+                    updateMsgBoard("Out of heals! Hit 'em hard!");
+                }
+                break;
             case (e.keyCode === 49):
-                console.log('cantrip')
+                
                 atk = player.rollCantrip();
                 playerAttack(atk);
                 break;
             case (e.keyCode === 50):
-                console.log('med attack')
-                atk = player.rollAttack(10);
-                playerAttack(atk);
+                if ( player.spellSlots > 0 ) {
+                    atk = player.rollAttack(10);
+                    playerAttack(atk);
+                    player.spellSlots--;
+                } else {
+                    updateMsgBoard('Not enough spell power!');
+                }
                 break;
             case (e.keyCode === 51):
-                console.log('big attack')
-                atk = player.rollAttack(12);
-                playerAttack(atk);
+                if ( player.spellSlots >= 2 ) {
+                    atk = player.rollAttack(10);
+                    playerAttack(atk);
+                    player.spellSlots-=2;
+                } else {
+                    updateMsgBoard('Not enough spell power!');
+                }
                 break;
             case(e.keyCode === 75): //kill the crawler
                 atk = 100 * player.rollAttack(100);
@@ -486,10 +503,12 @@ var crawlerAttack = function() {
     console.log('crawler', atk);
     updateMsgBoard("You've been hit for " + atk);
     playerTurn = true;
-    setTimeout(battleHandler,2000);
+    updateStats();
+    setTimeout(battleHandler,1500);
 }
 
 var playerAttack = function(atk) {
+    animateRoll(atk);
     crawler.current.hp -= atk;
     updateMsgBoard("Crawler is hit for " + atk);
     playerTurn = false;
@@ -503,8 +522,12 @@ var playerAttack = function(atk) {
 }
 
 var playerHeal = function() {
-    player.hp+= player.level * 2 * rollDie(4);
+    var healRoll = player.level * (2 * rollDie(4)) + 2;
+    animateRoll(healRoll);
+    player.hp+= healRoll;
     player.healSlots--;
+    playerTurn = false;
+    setTimeout(crawlerAttack,2000);
 }
 
 var destroyCrawler = function () {
@@ -540,6 +563,7 @@ var battleHandler = function() {
         endGame();
         console.log('you lose')
     }
+    updateStats();
 }
 
 
