@@ -464,6 +464,14 @@ var destroyCrawler = function() {
     // returnToDungeon();
 }
 
+var checkForWin = function() {
+    if (crawlers.length === 0) {
+        endGame('win');
+    } else {
+        returnToDungeon();
+    }
+}
+
 var battleHandler = function() {
     if (player.hp > 0 && crawler.current.hp > 0) {
         if (!playerTurn) {
@@ -476,16 +484,13 @@ var battleHandler = function() {
         player.levelUp();
         // clear crawler from crawlers arr and crawler object
         destroyCrawler();
-        // restart dungeon mode
-        returnToDungeon();
+        // check for win and restart dungeon mode if crawlers left
+        checkForWin();
+        // returnToDungeon();
     } else if (player.hp <= 0) {
         // gameOver = true;
-        if (crawlers.length == 0) {
-            endGame('win');
-        } else {
-            endGame();
-            console.log('you lose')
-        }
+        endGame();
+        console.log('you lose')
     }
 }
 
