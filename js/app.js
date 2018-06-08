@@ -206,13 +206,13 @@ var drawGloom = function() {
     var gloom = light.getContext('2d');
 
     // punch out for lantern effect
-    gloom.fillStyle = "rgba(0,0,0,0.9)";
+    gloom.fillStyle = "rgba(0,0,0,1)";
     gloom.fillRect(0, 0, ctxWidth, ctxHeight);
     gloom.globalCompositeOperation = 'destination-out';
     gloom.filter = "blur(32px)";
     
-    // var lanternRadius = 32 + Math.floor(Math.random() *32); //causing artifacts
-    var lanternRadius = 64;
+    var lanternRadius = 48 + Math.floor(Math.random() * 16); //causing artifacts
+    // var lanternRadius = 64;
 
     // position lantern centered over player
     gloom.arc(player.x + 16, player.y + 16, lanternRadius, 0, 2 * Math.PI);
@@ -329,12 +329,12 @@ var generateCrawlers = function(limitLessTwo) {
         var y = Math.floor(Math.random() * ctxHeight);
         // pad for hero starting position and dungeon boundaries
 
-        // console.log(i,x,y,'before',ctxWidth,ctxHeight);
+        console.log(i,x,y,'before',ctxWidth,ctxHeight);
         var randomX = (x < 64) ? x + 64 : x;
-        randomX = (x > ctxWidth) ? x - 64 : x;
+        randomX = (randomX > ctxWidth - 32) ? randomX - 64 : randomX;
         var randomY = (y < 64) ? y + 64 : y;
-        randomY = (y > ctxHeight) ? y - 64 : y;
-        // console.log(i, randomX, randomY, 'after', ctxWidth, ctxHeight);
+        randomY = (randomY > ctxHeight - 32) ? randomY - 64 : randomY;
+        console.log(i, randomX, randomY, 'after', ctxWidth, ctxHeight);
         
         // random sprite from array
         var randomSprite = crawlerSprites[Math.floor(Math.random() * crawlerSprites.length)];
@@ -348,7 +348,7 @@ var generateCrawlers = function(limitLessTwo) {
 // ***GAME PLAY & LOGIC*** //
 var initGame = function() {
     player = new Hero(0, 0, '../img/plc-mage-32-r.png');
-    generateCrawlers(1);
+    generateCrawlers(6);
     hitPoints.textContent = player.hp;   
 }
 
@@ -369,7 +369,7 @@ var endGame = function(status) {
 
 var startDungeonMode = function() {
     ctxD.clearRect(0, 0, ctxWidth, ctxHeight);
-    drawGloom();
+    // drawGloom();
     player.render(ctxD);
     crawlers.forEach( function(crawler) {
         crawler.render(ctxD);
