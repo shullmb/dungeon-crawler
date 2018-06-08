@@ -400,6 +400,8 @@ var startDungeonMode = function() {
 var returnToDungeon = function() {
     ctxB.clearRect(0,0,battleScreen.width, battleScreen.height);
     ctxD.restore();
+    updateRollValue('');
+    updateMsgBoard('');
     dungeonMode = true;
     gameLoopHandle = setLoopInterval();
 }
@@ -460,13 +462,12 @@ var crawlerAttack = function() {
     updateMsgBoard("You've been hit for " + atk);
     hitPoints.textContent = player.hp;
     playerTurn = true;
-    battleHandler();
+    setTimeout(battleHandler,2000);
 }
 
 var playerAttack = function(atk) {
     crawler.current.hp -= atk;
-
-    animateMsgBoard("Crawler is hit for " + atk);
+    updateMsgBoard("Crawler is hit for " + atk);
     playerTurn = false;
     if (crawler.current.hp > 0 && crawler.current !== null) {
         setTimeout( function() {
@@ -486,7 +487,7 @@ var checkForWin = function() {
     if (crawlers.length === 0) {
         endGame('win');
     } else {
-        returnToDungeon();
+        setTimeout(returnToDungeon, 1000);
     }
 }
 
