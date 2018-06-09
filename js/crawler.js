@@ -58,7 +58,7 @@ Hero.prototype.levelUp = function () {
     this.healSlots++;
 }
 
-// ***TEST CRAWLER*** //
+// ***CRAWLERS THAT CRAWL*** //
 function Mover(x,y,src) {
     Crawler.call(this, x, y, src);
 }
@@ -84,4 +84,24 @@ Mover.prototype.hunt = function() {
         this.y++;
     }
 
+}
+
+Mover.prototype.scurry = function(destX,destY) {
+    var dx = this.x - destX;
+    // var dy = this.y - player.y;
+
+    if (dx > 0) {
+        this.x-=dx;
+        // this.src = this.src.replace('r', 'l');
+    } else if (dx <= 0) {
+        this.x+=dx;
+        // this.src = this.src.replace(/-l/, '-r');
+    } 
+
+    console.log(this.x, destX)
+    // if (dy > 0) {
+    //     this.y--;
+    // } else {
+    //     this.y++;
+    // }
 }

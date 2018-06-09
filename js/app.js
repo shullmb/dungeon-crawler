@@ -331,17 +331,22 @@ var generateCrawlers = function(limitLessTwo) {
 
         crawlers.push(randomCrawler);
     }
+}
 
-    imp = new Mover(832, 416, "../img/plc-shadowimp-32-l.png");
-
+var generateImp = function() {
+    imp = new Mover(ctxWidth, ctxHeight, "../img/plc-shadowimp-32-l.png");
+    imp.levelUp();
     crawlers.push(imp);
 }
+
+// generate rat
 
 // ***GAME PLAY & LOGIC*** //
 var initGame = function() {
     gameOver = false;
     player = new Hero(0, 0, '../img/plc-mage-32-r.png');
     generateCrawlers(player.level);
+    generateImp();
     updateStats();   
 }
 
@@ -378,7 +383,6 @@ var startDungeonMode = function() {
         crawler.render(ctxD);
     })
     imp.hunt();
-    // imp.render(ctxD);
 
     detectEncounter();
 }
@@ -437,22 +441,22 @@ var crawlerAttack = function() {
     var atk;
     var atkSelection = rollDie(20);
     if (atkSelection >= 0 && atkSelection < 14) {
-        atk = crawler.current.rollAttack(4);
+        atk = crawler.current.level * crawler.current.rollAttack(4);
     } else if (atkSelection >= 14 && atkSelection > 20) {
-        atk = crawler.current.rollAttack(6);
+        atk = crawler.current.level * crawler.current.rollAttack(6);
     } else {
-        atk = crawler.current.rollAttack(10)
+        atk = crawler.current.level * crawler.current.rollAttack(10)
     }
     player.hp -= atk;
     updateMsgBoard("You've been hit for " + atk);
     playerTurn = true;
     updateStats();
     setTimeout( function() {
-        battleHandler()
         drawBattleScreen();
         drawBattleParticipants();
         drawBattleHeader(ctxB, "FIGHT!", 330, 50, 'red')
         drawAttackChoices();
+        battleHandler()
     },1500);
 }
 
@@ -463,7 +467,6 @@ var playerAttack = function(atk) {
     playerTurn = false;
     if (crawler.current.hp > 0 && crawler.current !== null) {
         setTimeout( function() {
-
             crawlerAttack();
         }, 2000);
     } else {
@@ -508,6 +511,7 @@ var battleHandler = function() {
         crawlers.splice(crawler.index, 1);
         destroyCrawler();
         // check for win and restart dungeon mode if crawlers left
+        updateMsgBoard('');
         checkForWin();
     } else if (player.hp <= 0) {
         endGame();
