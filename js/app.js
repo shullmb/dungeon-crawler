@@ -446,11 +446,11 @@ var crawlerAttack = function() {
     var atk;
     var atkSelection = rollDie(20);
     if (atkSelection >= 0 && atkSelection < 14) {
-        atk = crawler.current.level * crawler.current.rollAttack(4);
+        atk = crawler.current.rollAttack(6);
     } else if (atkSelection >= 14 && atkSelection > 20) {
-        atk = crawler.current.level * crawler.current.rollAttack(6);
+        atk = crawler.current.rollAttack(10);
     } else {
-        atk = crawler.current.level * crawler.current.rollAttack(10)
+        atk = crawler.current.rollAttack(12)
     }
     player.hp -= atk;
     updateMsgBoard("You've been hit for " + atk);
