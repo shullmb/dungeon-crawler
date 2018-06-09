@@ -31,8 +31,8 @@ Crawler.prototype.rollAttack = function (n) {
 
 // level up
 Crawler.prototype.levelUp = function () {
-    this.level += 1
     this.hp += this.level * rollDie(8) + 4;
+    this.level += 1
 }
 
 // create hero prototype 
@@ -84,24 +84,4 @@ Mover.prototype.hunt = function() {
         this.y++;
     }
 
-}
-
-Mover.prototype.scurry = function(destX,destY) {
-    var dx = this.x - destX;
-    // var dy = this.y - player.y;
-
-    if (dx > 0) {
-        this.x-=dx;
-        // this.src = this.src.replace('r', 'l');
-    } else if (dx <= 0) {
-        this.x+=dx;
-        // this.src = this.src.replace(/-l/, '-r');
-    } 
-
-    console.log(this.x, destX)
-    // if (dy > 0) {
-    //     this.y--;
-    // } else {
-    //     this.y++;
-    // }
 }

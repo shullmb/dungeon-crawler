@@ -180,7 +180,7 @@ var movementInputHandler = function(e) {
 
 // input Handler battle mode -- playerAttack repeated to avoid 'undefined'
 var battleInputHandler = function(e) {
-    if (battleMode && playerTurn) {
+    if (battleMode && playerTurn && !gameOver) {
         var atk;
         switch(true) {
             case (e.keyCode === 48):
@@ -234,12 +234,13 @@ var gameOverInputHandler = function(e) {
 
 // ***CANVAS HELPERS*** //
 
-// shroud of darkness -- help from stack overflow https://stackoverflow.com/questions/6271419/how-to-fill-the-opposite-shape-on-canvas
+// shroud of darkness -- 
 var drawGloom = function() {
     lantern.clearRect(0, 0, ctxWidth, ctxHeight);
     lantern.fillStyle = 'rgba(255,255,255,0)'; // 
     lantern.fillRect(0, 0, ctxWidth, ctxHeight);
     
+    // canvas mask help from stack overflow https://stackoverflow.com/questions/6271419/how-to-fill-the-opposite-shape-on-canvas
     // create canvas for mask here -- doesn't seem to work declared externally from this function
     var light = document.createElement('canvas');
     light.width = ctxWidth;
@@ -247,11 +248,15 @@ var drawGloom = function() {
     var gloom = light.getContext('2d');
 
     // punch out for lantern effect
-    gloom.fillStyle = "rgba(0,0,0,1)";
-    gloom.fillRect(0, 0, ctxWidth, ctxHeight);
+    // gloom.fillStyle = "rgba(0,0,0,1)"; // keep if canvas mask fails
+    // gloom.fillRect(0, 0, ctxWidth, ctxHeight);
+    var canvasMask = new Image();
+    canvasMask.src = "../img/canvas_mask.png";
+    gloom.drawImage(canvasMask,0,0,ctxWidth,ctxHeight);
     gloom.globalCompositeOperation = 'destination-out';
     gloom.filter = "blur(32px)";
     
+    // flicker and fade!
     var lanternRadius = 48 + Math.floor(Math.random() * 16);
 
     // position lantern centered over player
@@ -377,7 +382,7 @@ var restartGame = function() {
 
 var startDungeonMode = function() {
     ctxD.clearRect(0, 0, ctxWidth, ctxHeight);
-    // drawGloom();
+    drawGloom();
     player.render(ctxD);
     crawlers.forEach( function(crawler) {
         crawler.render(ctxD);
