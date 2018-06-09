@@ -58,6 +58,20 @@ var setLoopInterval = function() {
     },60)
 }
 
+// pause game in dungeon mode
+var pressPause = function() {
+    if (dungeonMode) {
+        dungeonMode = false;
+        clearInterval(gameLoopHandle)
+        drawBattleScreen();
+        drawBattleHeader(ctxB,'PAUSED',332,208,'black');
+    } else {
+        ctxB.clearRect(0,0,ctxWidth,ctxHeight);
+        dungeonMode = true;
+        gameLoopHandle = setLoopInterval();
+    }
+}
+
 // roll a die of n sides
 var rollDie = function(n) {
     return Math.ceil(Math.random() * n);
@@ -160,19 +174,19 @@ var movementInputHandler = function(e) {
         switch (true) {
             case (e.keyCode === 87 || e.keyCode === 38):
                 player.src = "../img/plc-mage-32-u.png";
-                player.y -= 5;
+                player.y >= 0 ? player.y -= 5 : player.y;
                 break;
             case (e.keyCode === 83 || e.keyCode === 40):
                 player.src = "../img/plc-mage-32-d.png";
-                player.y += 5;
+                player.y <= (ctxHeight - 32) ? player.y += 5 : player.y;
                 break;
             case (e.keyCode === 65 || e.keyCode === 37):
                 player.src = "../img/plc-mage-32-l.png";
-                player.x -= 5;
+                player.x >= 0 ? player.x -= 5: player.x;
                 break;
             case (e.keyCode === 68 || e.keyCode === 39):
                 player.src = "../img/plc-mage-32-r.png";
-                player.x += 5;
+                player.x <= (ctxWidth - 32) ? player.x += 5: player.x;
                 break;
         }
     }
@@ -269,7 +283,7 @@ var drawGloom = function() {
 // battle background
 var drawBattleScreen = function() {
     ctxB.clearRect(0, 0, battleScreen.width, battleScreen.height);
-    ctxB.fillStyle = 'rgba(66,66,66,0.8)';
+    ctxB.fillStyle = 'rgba(44,44,44,0.6)';
     ctxB.strokeRect(10, 10, 812, 396);
     ctxB.fillRect(10, 10, 812, 396);
 }
@@ -368,7 +382,6 @@ var endGame = function(status) {
 }
 
 var restartGame = function() {
-    player = null;
     dungeonMode = true;
     battleMode = false;
     crawlers.length = 0;
@@ -382,7 +395,7 @@ var restartGame = function() {
 
 var startDungeonMode = function() {
     ctxD.clearRect(0, 0, ctxWidth, ctxHeight);
-    drawGloom();
+    // drawGloom();
     player.render(ctxD);
     crawlers.forEach( function(crawler) {
         crawler.render(ctxD);
@@ -532,6 +545,7 @@ document.addEventListener('DOMContentLoaded', function(){
     document.addEventListener('keydown', movementInputHandler);
     document.addEventListener('keydown', battleInputHandler);
     document.addEventListener('keydown', gameOverInputHandler);
+    battleScreen.addEventListener('click', pressPause);
     
     
 

@@ -21,13 +21,15 @@ This is where a description of this project will go.
 
 ## Rewrite with scale in mind
 
-## A warming glow in a chilly place
+## Light to guide in a dark place
 
 ## Shadow Imp on the hunt
 
 ## In the works
+- [x] Ability to pause
 - [ ] Audio
 - [ ] Change the system so that leveling up occurs after the dungeon is cleared
 - [ ] Scoring system
 - [ ] Use Local Storage to save highscores or player's current stats
+
 
