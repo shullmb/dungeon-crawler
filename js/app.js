@@ -44,6 +44,9 @@ var hitPoints = document.getElementById('hit-points');
 var rollValue = document.getElementById('roll-value');
 var msgBoard = document.getElementById('message-board');
 
+var battleAnthem;
+var gameOverTheme;
+
 // ***HELPER FUNCTIONS*** //
 
 // game loop with exit strategy
@@ -70,6 +73,27 @@ var pressPause = function() {
         dungeonMode = true;
         gameLoopHandle = setLoopInterval();
     }
+}
+
+// reset battle music
+var resetBattleAnthem = function() {
+    battleAnthem.pause();
+    battleAnthem.currentTime = 0;
+}
+
+//crawler attacks
+var crawlerBiteSound = function() {
+    var sounds = ["bite-one","bite-two","bite-three"];
+    var sound = document.getElementById(sounds[Math.floor(Math.random()*2)]);
+    sound.play();
+}
+
+// spell Action sounds
+var playActionSound = function(i) {
+    var sounds = ["heal-spell", "ice-spear","fireball","death-channel"];
+    sound = document.getElementById(sounds[i]);
+    i = 3 ? sound.volume = 0.2 : sound.volume = 1;
+    sound.play();
 }
 
 // roll a die of n sides
@@ -205,14 +229,13 @@ var battleInputHandler = function(e) {
                 }
                 break;
             case (e.keyCode === 49):
-                
                 atk = player.rollCantrip();
-                playerAttack(atk);
+                playerAttack(atk,1);
                 break;
             case (e.keyCode === 50):
                 if ( player.spellSlots > 0 ) {
                     atk = player.rollAttack(10);
-                    playerAttack(atk);
+                    playerAttack(atk,2);
                     player.spellSlots--;
                 } else {
                     updateMsgBoard('Not enough spell power!');
@@ -221,7 +244,7 @@ var battleInputHandler = function(e) {
             case (e.keyCode === 51):
                 if ( player.spellSlots >= 2 ) {
                     atk = player.rollAttack(10);
-                    playerAttack(atk);
+                    playerAttack(atk,3);
                     player.spellSlots-=2;
                 } else {
                     updateMsgBoard('Not enough spell power!');
@@ -229,7 +252,7 @@ var battleInputHandler = function(e) {
                 break;
             case(e.keyCode === 75): //kill the crawler
                 atk = 100 * player.rollAttack(100);
-                playerAttack(atk);
+                playerAttack(atk,3);
                 break;
             default:
                 updateMsgBoard('Press 1,2,3 or 0...');
@@ -376,6 +399,8 @@ var endGame = function(status) {
         statusScreen.src = "img/gameover.png";
     }
     ctxB.drawImage(statusScreen,0,0);
+    resetBattleAnthem();
+    gameOverTheme.play();
     animateMsgBoard('Press return to play again');
 }
 
@@ -431,6 +456,7 @@ var detectEncounter = function() {
 
 var startBattleMode = function() {
     var turnMsg;
+    battleAnthem.play();
     updateMsgBoard('ROLL FOR INITIATIVE!');
     player.rollInitiative();
     crawler.current.rollInitiative();
@@ -465,6 +491,7 @@ var crawlerAttack = function() {
     }
     player.hp -= atk;
     updateMsgBoard("You've been hit for " + atk);
+    crawlerBiteSound();
     playerTurn = true;
     updateStats();
     setTimeout( function() {
@@ -476,23 +503,25 @@ var crawlerAttack = function() {
     },1500);
 }
 
-var playerAttack = function(atk) {
+var playerAttack = function(atk,soundIndex) {
     crawler.current.hp -= atk;
     animateRoll(atk);
     animateMsgBoard("Crawler is hit for " + atk);
+    setTimeout( function(){
+        playActionSound(soundIndex);
+    },1200);
     playerTurn = false;
     if (crawler.current.hp > 0 && crawler.current !== null) {
-        setTimeout( function() {
-            crawlerAttack();
-        }, 2000);
+        setTimeout(crawlerAttack, 2000);
     } else {
-        battleHandler();
+        setTimeout(battleHandler,2000);
     }
 }
 
 var playerHeal = function() {
     var healRoll = player.level * (2 * rollDie(4)) + 2;
     animateRoll(healRoll);
+    playActionSound(0);
     animateMsgBoard("You feel stronger...");
     player.hp+= healRoll;
     player.healSlots--;
@@ -509,7 +538,10 @@ var checkForWin = function() {
     if (crawlers.length === 0) {
         endGame('win');
     } else {
-        setTimeout(returnToDungeon, 1000);
+        setTimeout( function() {
+            resetBattleAnthem();            
+            returnToDungeon()
+        }, 1000);
     }
 }
 
@@ -544,7 +576,13 @@ document.addEventListener('DOMContentLoaded', function(){
     document.addEventListener('keydown', battleInputHandler);
     document.addEventListener('keydown', gameOverInputHandler);
     battleScreen.addEventListener('click', pressPause);
-    
+
+    // sound track
+    battleAnthem = document.getElementById('battle-anthem');
+    battleAnthem.volume = 0.1;
+
+    gameOverTheme = document.getElementById('gameover-theme');
+    gameOverTheme.volume = 0.1;
     
 
     gameLoopHandle = setLoopInterval();
