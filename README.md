@@ -2,11 +2,11 @@
 
 ## Roam the deep and battle it out with dwellers of the dark places.
 
-## How to play
+# How to play
 
-### Objective
+## Objective
 
-### Game Controls
+## Game Controls
 
 
 # Development Story
@@ -25,10 +25,13 @@
 
 ## In the works
 - [x] Ability to pause
-- [ ] Audio
+- [x] Audio
+- [ ] More responsive leyout
+- [ ] Mobile controls
 - [ ] Change the system so that leveling up occurs after the dungeon is cleared
 - [ ] Scoring system
 - [ ] Use Local Storage to save highscores or player's current stats
-- [ ] Rats
+- [ ] Rats!!
+- [ ] Procedurally generated dungeon walls with imp tracking via Dijkstra 👹
 
 

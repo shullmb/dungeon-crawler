@@ -412,6 +412,8 @@ var restartGame = function() {
     ctxD.clearRect(0,0,ctxWidth,ctxHeight);
     ctxB.clearRect(0,0,ctxWidth,ctxHeight);
     updateMsgBoard();
+    gameOverTheme.pause();
+    gameOverTheme.currentTime = 0;
     initGame();
     gameLoopHandle = setLoopInterval();
 }
@@ -429,10 +431,10 @@ var startDungeonMode = function() {
 }
 
 var returnToDungeon = function() {
-    ctxB.clearRect(0,0,battleScreen.width, battleScreen.height);
+    ctxB.clearRect(0,0,ctxWidth,ctxHeight);
     ctxD.restore();
-    updateRollValue('');
-    updateMsgBoard('');
+    updateRollValue();
+    updateMsgBoard();
     dungeonMode = true;
     gameLoopHandle = setLoopInterval();
 }
@@ -582,8 +584,7 @@ document.addEventListener('DOMContentLoaded', function(){
     battleAnthem.volume = 0.1;
 
     gameOverTheme = document.getElementById('gameover-theme');
-    gameOverTheme.volume = 0.1;
-    
+    gameOverTheme.volume = 0.1; 
 
     gameLoopHandle = setLoopInterval();
 })
