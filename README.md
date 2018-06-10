@@ -8,22 +8,22 @@
 
 ## Game Controls
 #### Crawling through the Dungeon
-Players make their way through the darkness encountering horrifying 
-| Keypress | Action |
-|:--------:|--------|
-| ⬆️| move player up|
-| ⬇️️| move player down|
-| ⬅️| move player |
-| ➡️| move player up|
+Players make their way through the darkness encountering horrors from the deep
+
+ Keypress | Action 
+:--------:|--------
+ ⬆️| move player up
+ ⬇️️| move player down
+ ⬅️| move player 
+ ➡️| move player up
 
 #### Battling it out
-| Keypress | Action | Damage | Cost |
-|:--------:|--------|:------:|:----:|
-| 1️⃣| Ice Blast |Player Level * d8| |
-| ️2️⃣| Fireball |Player Level * d10| 1 spell pt|
-| 3️⃣| Death Channel |Player Level * 2d8| 2 spell pt|
-| 0️⃣| Heal yourself |Player Level * (2d4 + 2)| 1 heal pt|
-
+ Keypress | Action | Damage | Cost 
+:--------:|--------|:------:|:----:
+ 1️⃣| Ice Blast |Player Level * d8| 
+ ️2️⃣| Fireball |Player Level * d10| 1 spell pt
+ 3️⃣| Death Channel |Player Level * 2d8| 2 spell pt
+ 0️⃣| Heal yourself |Player Level * (2d4 + 2)| 1 heal pt
 
 ___
 
@@ -37,6 +37,7 @@ mockup screen shots
 Turn Based game
 
 ![Gameplay](https://github.com/shullmb/readme_screenshots/raw/master/dc/mockup/gameplay.gif)
+
 ## The Game Loop - 2 modes
 damage on repeat
 ## Scrapping the draft
