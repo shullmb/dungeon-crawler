@@ -31,9 +31,11 @@ ___
 
 ## Idea & Wireframes
 mockup screen shots
+
 ![Wireframe!](https://github.com/shullmb/readme_screenshots/raw/master/dc/mockup/wireframe.png)
 
 Turn Based game
+
 ![Gameplay](https://github.com/shullmb/readme_screenshots/raw/master/dc/mockup/gameplay.gif)
 ## The Game Loop - 2 modes
 damage on repeat
@@ -46,15 +48,22 @@ rewrite
 adding an element of suspense
 
 masking the canvas
+
 ![Lantern](https://github.com/shullmb/readme_screenshots/raw/master/dc/lantern1.png)
 
 adding a feathered effect
+
+![Lantern](https://github.com/shullmb/readme_screenshots/raw/master/dc/lantern2.png)
+
 ```js
 gloom.filter = "blur(32px)";
 ```
-![Lantern](https://github.com/shullmb/readme_screenshots/raw/master/dc/lantern2.png)
+
 
 Getting the feel right
+
+![Lantern](https://github.com/shullmb/readme_screenshots/raw/master/dc/flicker.gif)
+
 ```js
 // flicker and fade!
 var lanternRadius = 48 + Math.floor(Math.random() * 16);
@@ -63,7 +72,6 @@ var lanternRadius = 48 + Math.floor(Math.random() * 16);
 gloom.arc(player.x + 16, player.y + 16, lanternRadius, 0, 2 * Math.PI);
 gloom.fill();
 ```
-![Lantern](https://github.com/shullmb/readme_screenshots/raw/master/dc/flicker.gif)
 
 ## Shadow Imp on the hunt
 .hunt()
