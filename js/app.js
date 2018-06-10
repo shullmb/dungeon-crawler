@@ -243,7 +243,8 @@ var battleInputHandler = function(e) {
                 break;
             case (e.keyCode === 51):
                 if ( player.spellSlots >= 2 ) {
-                    atk = player.rollAttack(10);
+                    // this will evaluate diff from 2*player.attack(8) - higher % chance of big damage
+                    atk = player.rollAttack(8) + player.rollAttack(8); 
                     playerAttack(atk,3);
                     player.spellSlots-=2;
                 } else {
@@ -521,7 +522,8 @@ var playerAttack = function(atk,soundIndex) {
 }
 
 var playerHeal = function() {
-    var healRoll = player.level * (2 * rollDie(4)) + 2;
+    // var healRoll = player.level * (2 * rollDie(4)) + 2;
+    var healRoll = player.heal();
     animateRoll(healRoll);
     playActionSound(0);
     animateMsgBoard("You feel stronger...");

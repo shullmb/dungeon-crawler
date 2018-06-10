@@ -51,6 +51,12 @@ Hero.prototype.rollCantrip = function () {
     return this.level * rollDie(8)
 }
 
+Hero.prototype.heal = function() {
+    var healRoll = this.level * (2 * rollDie(4) + 2);
+    this.hp += healRoll;
+    return healRoll;
+}
+
 // hero extras on the level up
 Hero.prototype.levelUp = function () {
     Crawler.prototype.levelUp.call(this);
