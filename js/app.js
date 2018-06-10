@@ -65,7 +65,7 @@ var pressPause = function() {
         clearInterval(gameLoopHandle)
         drawBattleScreen();
         drawBattleHeader(ctxB,'PAUSED',332,208,'black');
-    } else {
+    } else if (!dungeonMode && !battleMode && !gameOver){
         ctxB.clearRect(0,0,ctxWidth,ctxHeight);
         dungeonMode = true;
         gameLoopHandle = setLoopInterval();
@@ -173,19 +173,19 @@ var movementInputHandler = function(e) {
     if (dungeonMode) {
         switch (true) {
             case (e.keyCode === 87 || e.keyCode === 38):
-                player.src = "../img/plc-mage-32-u.png";
+                player.src = "img/plc-mage-32-u.png";
                 player.y >= 0 ? player.y -= 5 : player.y;
                 break;
             case (e.keyCode === 83 || e.keyCode === 40):
-                player.src = "../img/plc-mage-32-d.png";
+                player.src = "img/plc-mage-32-d.png";
                 player.y <= (ctxHeight - 32) ? player.y += 5 : player.y;
                 break;
             case (e.keyCode === 65 || e.keyCode === 37):
-                player.src = "../img/plc-mage-32-l.png";
+                player.src = "img/plc-mage-32-l.png";
                 player.x >= 0 ? player.x -= 5: player.x;
                 break;
             case (e.keyCode === 68 || e.keyCode === 39):
-                player.src = "../img/plc-mage-32-r.png";
+                player.src = "img/plc-mage-32-r.png";
                 player.x <= (ctxWidth - 32) ? player.x += 5: player.x;
                 break;
         }
@@ -265,7 +265,7 @@ var drawGloom = function() {
     // gloom.fillStyle = "rgba(0,0,0,1)"; // keep if canvas mask fails
     // gloom.fillRect(0, 0, ctxWidth, ctxHeight);
     var canvasMask = new Image();
-    canvasMask.src = "../img/canvas_mask.png";
+    canvasMask.src = "img/canvas_mask.png";
     gloom.drawImage(canvasMask,0,0,ctxWidth,ctxHeight);
     gloom.globalCompositeOperation = 'destination-out';
     gloom.filter = "blur(32px)";
@@ -313,10 +313,10 @@ var drawAttackChoices = function() {
     var spellThree = new Image();
     var spellFour = new Image();
 
-    spellOne.src = "../img/throw_icicle_new_128.png";
-    spellTwo.src = "../img/fireball_new_128.png";
-    spellThree.src = "../img/death_channel_128.png";
-    spellFour.src = "../img/cure_poison_new_128.png";
+    spellOne.src = "img/throw_icicle_new_128.png";
+    spellTwo.src = "img/fireball_new_128.png";
+    spellThree.src = "img/death_channel_128.png";
+    spellFour.src = "img/cure_poison_new_128.png";
 
     ctxB.drawImage(spellOne, 70, 200, 128, 128);
     ctxB.drawImage(spellTwo, 258, 200, 128, 128);
@@ -329,7 +329,7 @@ var drawAttackChoices = function() {
 var generateCrawlers = function(limitLessTwo) {
     // generate 3 - 6 crawlers
     var numCrawlers = 2 + Math.ceil(Math.random() * limitLessTwo);
-    var crawlerSprites = ["../img/plc-shroom-32.png", "../img/plc-deathooze-32.png", "../img/plc-eye-32.png", "../img/plc-snail-32.png"]
+    var crawlerSprites = ["img/plc-shroom-32.png", "img/plc-deathooze-32.png", "img/plc-eye-32.png", "img/plc-snail-32.png"]
     for (var i = 0; i < numCrawlers; i++) {
         // random coordinates 
         var x = Math.floor(Math.random() * ctxWidth);
@@ -353,17 +353,15 @@ var generateCrawlers = function(limitLessTwo) {
 }
 
 var generateImp = function() {
-    imp = new Mover(ctxWidth, ctxHeight, "../img/plc-shadowimp-32-l.png");
+    imp = new Mover(ctxWidth, ctxHeight, "img/plc-shadowimp-32-l.png");
     imp.levelUp();
     crawlers.push(imp);
 }
 
-// generate rat
-
 // ***GAME PLAY & LOGIC*** //
 var initGame = function() {
     gameOver = false;
-    player = new Hero(0, 0, '../img/plc-mage-32-r.png');
+    player = new Hero(0, 0, 'img/plc-mage-32-r.png');
     generateCrawlers(player.level);
     generateImp();
     updateStats();   
@@ -373,9 +371,9 @@ var endGame = function(status) {
     gameOver = true;
     var statusScreen = new Image(832,416);
     if (status === 'win') {
-        statusScreen.src = "../img/winscreen.png";
+        statusScreen.src = "img/winscreen.png";
     } else {
-        statusScreen.src = "../img/gameover.png";
+        statusScreen.src = "img/gameover.png";
     }
     ctxB.drawImage(statusScreen,0,0);
     animateMsgBoard('Press return to play again');
@@ -395,7 +393,7 @@ var restartGame = function() {
 
 var startDungeonMode = function() {
     ctxD.clearRect(0, 0, ctxWidth, ctxHeight);
-    // drawGloom();
+    drawGloom();
     player.render(ctxD);
     crawlers.forEach( function(crawler) {
         crawler.render(ctxD);
