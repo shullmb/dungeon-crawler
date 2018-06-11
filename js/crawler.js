@@ -89,5 +89,4 @@ Mover.prototype.hunt = function() {
     } else {
         this.y++;
     }
-
 }

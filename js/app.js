@@ -286,8 +286,6 @@ var drawGloom = function() {
     var gloom = light.getContext('2d');
 
     // punch out for lantern effect
-    // gloom.fillStyle = "rgba(0,0,0,1)"; // keep if canvas mask fails
-    // gloom.fillRect(0, 0, ctxWidth, ctxHeight);
     var canvasMask = new Image();
     canvasMask.src = "img/canvas_mask.png";
     gloom.drawImage(canvasMask,0,0,ctxWidth,ctxHeight);
