@@ -306,8 +306,8 @@ var drawGloom = function() {
 var drawBattleScreen = function() {
     ctxB.clearRect(0, 0, battleScreen.width, battleScreen.height);
     ctxB.fillStyle = 'rgba(44,44,44,0.6)';
-    ctxB.strokeRect(10, 10, 812, 396);
-    ctxB.fillRect(10, 10, 812, 396);
+    ctxB.strokeRect(10, 10, ctxWidth - 20, ctxHeight - 20);
+    ctxB.fillRect(10, 10, ctxWidth - 20, ctxHeight - 20);
 }
 
 // render hero + crawler large
@@ -391,7 +391,7 @@ var initGame = function() {
 
 var endGame = function(status) {
     gameOver = true;
-    var statusScreen = new Image(832,416);
+    var statusScreen = new Image(ctxWidth,ctxHeight);
     if (status === 'win') {
         statusScreen.src = "img/winscreen.png";
     } else {
@@ -515,7 +515,7 @@ var playerAttack = function(atk,soundIndex) {
     if (crawler.current.hp > 0 && crawler.current !== null) {
         setTimeout(crawlerAttack, 2000);
     } else {
-        setTimeout(battleHandler,2000);
+        setTimeout(battleHandler, 2000);
     }
 }
 
