@@ -100,7 +100,7 @@ Success! I had it working -- but half a day behind my plan.
 ...and oh boy did I make a mess trying to debug and rework what I had already written to work with this better design.
 
 ## Scrapping the draft
-Late Wednesday morning, I met with my instructor after struggling a bit to untangle my logic... and asked the question I had been avoiding. "How often have you thrown out a large chunk of your work and started again from scratch." I received the reassurance that I was looking for and decided that scrapping it was a better path to take than continuing with the current iteration. After lunch, I pulled the trigger and started reading through my code to see what I could salvage.
+Late Wednesday morning, I met with my instructor after struggling a bit to untangle my logic... and asked the question I had been avoiding. "How often have you thrown out a large chunk of your work and started again from scratch?" I received the reassurance that I was looking for and decided that scrapping it was a better path to take than continuing with the current iteration. After lunch, I pulled the trigger and started reading through my code to see what I could salvage.
 
 ## Rewrite with scale in mind
 
@@ -191,9 +191,9 @@ ___
 ## Known issues and shortcomings
 So far, this game is not responsive and does not have mobile controls. 
 
-As this is my first attempt at actually using canvas, I focused on getting the gameplay and animation right first. In my initial attempts to make a responsive layout, I ran into issues with distortion of the image sprites that I was using. Resizing the window caused my 32 x 32 pixel hero and crawlers to stretch and squish in weird and unappealing ways. So I decide on a 832 x 416 pixel canvas. I am sure that there must be a way around this issue... I have not had a chance to look into it yet, but it is high on my list. 
+As this is my first attempt at actually using canvas, I focused on getting the gameplay and animation right first. In my initial attempts to make a responsive layout, I ran into issues with distortion of the image sprites that I was using. Resizing the window caused my 32 x 32 pixel hero and crawlers to stretch and squish in weird and unappealing ways. So I decide on a 832 x 416 pixel canvas. I am sure that there must be a way around this issue... I have not had a chance to look into it yet, but it is high on my list. I did anticipate this next step and have all calculations that involve the dimensions of the canvas controlled by the variables, `ctxWidth` and `ctxHeight`.
 
-As 832 x 416 is too big for phones, I decided to put my efforts toward creating more player experience for desktop users first before adding touch controls for tablets. 
+As 832 x 416 is too big for phones, I decided to put my efforts toward creating more player experience for desktop users first before adding touch controls for tablets.
 
 I was able to implement some audio, however, tracking down the right sounds available for free was tricky with time in short supply, so you wont be able to hear the fireball unless you have a pretty responsive subwoofer. 
 
@@ -220,7 +220,7 @@ Hoping to implement some of these soon!
 - [ ] `imp.hunt()` using Dijkstra's Hero Tracking algorithm 👹
 ___
 ## Game Art & Sounds
-HUGE THANKS THESE FOLKS who have released their work for free use under various Creative Commons Licenses!
+HUGE THANKS TO THESE FOLKS who have released their work for free use under various Creative Commons Licenses!
 
 Hero Sprite created using the Universal LPC Spritesheet & Guarav Munjal's generator site:
 https://github.com/jrconway3/Universal-LPC-spritesheet
@@ -236,6 +236,8 @@ https://opengameart.org/content/5-chiptunes-action
 Spell Effects and Bites:
 https://opengameart.org/content/rpg-sound-pack
 https://opengameart.org/content/spell-sounds-starter-pack
+
+Site Background and Win/Continue screen created using images from https://www.unsplash.com.
 
 
 
