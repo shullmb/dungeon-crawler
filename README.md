@@ -14,6 +14,8 @@ Players make their way through the darkness encountering horrors from the deep. 
  ⬅️ or `a`| move player left
  ➡️ or `d`| move player right
 
+ You can also `click` the game to pause.
+
 #### Battling it out
 A crawler encounter will trigger a turn based dice battle to the death.
 
@@ -28,7 +30,7 @@ Players will be prompted to select one of the following 4 actions on their turn:
  3️⃣| Death Wave |Player Level * 2d8| 2 spell pt
  0️⃣| Heal yourself |Player Level * (2d4 + 2)| 1 heal pt
 
- If you are still alive when the battle is over, your stats will increase and you will return to the dungeon to seek your next opponent... Be careful, you aren't the only one hunting in the dark. You can also `click` the game to pause.
+ If you are still alive when the battle is over, your stats will increase and you will return to the dungeon to seek your next opponent... Be careful, you aren't the only one hunting in the dark. 
 ___
 
 # Development
@@ -93,7 +95,7 @@ Eventually, I came to this pattern:
 - Once the DOM has loaded completely, assign `setLoopInterval()` to `gameLoopHandle`
 - Once battle is done, set `dungeonMode` back to true and assign `setLoopInterval()` to `gameLoopHandle` again
 
-Success! I had a it working -- but half a day behind my plan.
+Success! I had it working -- but half a day behind my plan.
 
 ...and oh boy did I make a mess trying to debug and rework what I had already written to work with this better design.
 
@@ -154,7 +156,7 @@ gloom.fill();
 
 ## Shadow Imp on the hunt
 
-It was now friday afternoon, I had worked out the bugs in timing of the battle and everything seemed to be working acceptably. 
+It was now Friday afternoon, I had worked out the bugs in timing of the battle and everything seemed to be working acceptably. 
 
 So  I started working on some of my stretch goals. I liked the idea of having a crawler that tracks the position of the player and slowly stalks closer.
 
@@ -189,12 +191,11 @@ ___
 ## Known issues and shortcomings
 So far, this game is not responsive and does not have mobile controls. 
 
-As this is my first attempt at actually using canvas, I focused on getting the gameplay and animation right first. In my initial attempts to make a responsive layout, I ran into issues with distortion of the image sprites that I was using. Resizing the window caused my 32 x 32 pixel hero and crawlers to stretch and squish in weird an unappealing ways. So I decide on a 832 x 416 pixel canvas. I am sure that there must be a way around this issue... I have not had a chance to look into it yet, but it is high on my list. 
+As this is my first attempt at actually using canvas, I focused on getting the gameplay and animation right first. In my initial attempts to make a responsive layout, I ran into issues with distortion of the image sprites that I was using. Resizing the window caused my 32 x 32 pixel hero and crawlers to stretch and squish in weird and unappealing ways. So I decide on a 832 x 416 pixel canvas. I am sure that there must be a way around this issue... I have not had a chance to look into it yet, but it is high on my list. 
 
 As 832 x 416 is too big for phones, I decided to put my efforts toward creating more player experience for desktop users first before adding touch controls for tablets. 
 
 I was able to implement some audio, however, tracking down the right sounds available for free was tricky with time in short supply, so you wont be able to hear the fireball unless you have a pretty responsive subwoofer. 
-
 
 As for semantic tags in html, per the requirements, I attempted to use them where I could. I used `<main>` to hold my canvas and `<header>`, but none of the other tags seem to fit for my project. The game UI boxes don't really qualify as an aside, section, article etc, so I didn't use them.
 
@@ -219,7 +220,7 @@ Hoping to implement some of these soon!
 - [ ] `imp.hunt()` using Dijkstra's Hero Tracking algorithm 👹
 ___
 ## Game Art & Sounds
-HUGE THANKS THESE FOLKS who have released their work for free use!
+HUGE THANKS THESE FOLKS who have released their work for free use under various Creative Commons Licenses!
 
 Hero Sprite created using the Universal LPC Spritesheet & Guarav Munjal's generator site:
 https://github.com/jrconway3/Universal-LPC-spritesheet
@@ -229,7 +230,7 @@ All Other sprites and floor tiles are care of the Open Game Art Archive:
 http://opengameart.org and the team behind, Dungeon Crawl Stone Soup.
 http://opengameart.org/content/dungeon-crawl-32x32-tiles
 
-Soundtrack care of Juhani Junkala. These music tracks were released under CC0 creative commons license here:
+Soundtrack care of Juhani Junkala:
 https://opengameart.org/content/5-chiptunes-action
 
 Spell Effects and Bites:
